@@ -1,0 +1,267 @@
+{
+  "client": {
+    "name": "Cornerstone Advisory Group",
+    "tagline": "Strategic financial guidance for growing businesses",
+    "description": "Cornerstone Advisory Group provides accounting, tax strategy, and CFO advisory services to mid-market businesses across the Southeast. 20+ years of experience, 200+ clients served.",
+    "email": "hello@cornerstoneadvisory.com",
+    "phone": "(404) 555-0283",
+    "address": "1200 Peachtree St NE, Suite 400, Atlanta, GA 30309",
+    "bookingUrl": "https://calendly.com/cornerstone-advisory/consultation",
+    "social": {
+      "linkedin": "https://linkedin.com/company/cornerstone-advisory",
+      "twitter": "https://twitter.com/cornerstoneadv"
+    }
+  },
+  "tokens": {
+    "primaryHue": "215",
+    "primarySaturation": "50%",
+    "primaryLightness": "30%",
+    "secondaryHue": "210",
+    "secondarySaturation": "15%",
+    "secondaryLightness": "50%",
+    "accentHue": "40",
+    "accentSaturation": "80%",
+    "accentLightness": "50%",
+    "fontHeading": "Playfair Display",
+    "fontBody": "Inter",
+    "radius": "0.375rem"
+  },
+  "pages": [
+    {
+      "slug": "/",
+      "title": "Cornerstone Advisory Group — Financial Strategy for Growing Businesses",
+      "description": "Accounting, tax strategy, and CFO advisory for mid-market businesses in the Southeast. 20+ years of experience. Schedule a consultation.",
+      "sections": [
+        {
+          "type": "hero",
+          "props": {
+            "headline": "Financial Clarity for What Comes Next",
+            "subheadline": "We help mid-market businesses make confident financial decisions — from tax strategy and compliance to fractional CFO services and growth planning.",
+            "ctaText": "Book a Consultation",
+            "ctaHref": "/contact"
+          }
+        },
+        {
+          "type": "stats",
+          "props": {
+            "stats": [
+              { "value": "200+", "label": "Clients Served" },
+              { "value": "20", "label": "Years of Experience" },
+              { "value": "98", "label": "% Client Retention" },
+              { "value": "50", "label": "M+ in Tax Savings" }
+            ]
+          }
+        },
+        {
+          "type": "services",
+          "props": {
+            "heading": "How We Help",
+            "subheading": "Comprehensive financial services tailored to your business stage and goals.",
+            "services": [
+              { "title": "Tax Strategy & Planning", "description": "Proactive tax planning that minimizes liability and maximizes deductions for businesses and their owners.", "icon": "DollarSign" },
+              { "title": "Fractional CFO", "description": "Senior-level financial leadership on a part-time basis. Strategic planning, cash flow management, and board-ready reporting.", "icon": "TrendingUp" },
+              { "title": "Accounting & Bookkeeping", "description": "Accurate monthly financials, reconciliation, and reporting so you always know where you stand.", "icon": "BarChart3" },
+              { "title": "Business Advisory", "description": "Data-driven guidance for expansion, acquisitions, exit planning, and major capital decisions.", "icon": "Briefcase" },
+              { "title": "Audit & Assurance", "description": "Independent audits, reviews, and compilations that satisfy lenders, investors, and regulators.", "icon": "Shield" },
+              { "title": "Payroll & Compliance", "description": "Full-service payroll processing, tax filings, and compliance monitoring across multiple states.", "icon": "Users" }
+            ]
+          }
+        },
+        {
+          "type": "testimonials",
+          "props": {
+            "heading": "Client Perspectives",
+            "testimonials": [
+              {
+                "quote": "Cornerstone's tax strategy saved us over $180K in our first year working together. They see opportunities our previous firm never mentioned.",
+                "author": "James Rutherford",
+                "role": "CEO",
+                "company": "Magnolia Holdings"
+              },
+              {
+                "quote": "Having a fractional CFO from Cornerstone gave us the financial rigor we needed to close our Series A. Worth every dollar.",
+                "author": "Priya Mehta",
+                "role": "Founder",
+                "company": "NovaTech Solutions"
+              },
+              {
+                "quote": "They handled our multi-state payroll transition seamlessly. Zero missed deadlines, zero penalties.",
+                "author": "Robert Kim",
+                "role": "COO",
+                "company": "Cascade Logistics"
+              },
+              {
+                "quote": "The monthly reporting is clear, timely, and actually useful for making decisions. Night and day from our old setup.",
+                "author": "Angela Torres",
+                "role": "VP Finance",
+                "company": "Southline Manufacturing"
+              }
+            ]
+          }
+        },
+        {
+          "type": "cta-band",
+          "props": {
+            "heading": "Let's Talk About Your Financial Future",
+            "subheading": "Schedule a complimentary 30-minute consultation to discuss your business needs.",
+            "ctaText": "Schedule Consultation",
+            "ctaHref": "/contact",
+            "variant": "primary"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "/about",
+      "title": "About Us — Cornerstone Advisory Group",
+      "description": "Meet the team behind Cornerstone Advisory Group. 20+ years of financial expertise serving mid-market businesses in the Southeast.",
+      "sections": [
+        {
+          "type": "about",
+          "props": {
+            "heading": "About Cornerstone Advisory",
+            "story": "Cornerstone Advisory Group was founded in 2004 by Catherine Hargrove, CPA, with a simple premise: mid-market businesses deserve the same caliber of financial strategy that Fortune 500 companies take for granted.\n\nTwo decades later, our team of 15 CPAs, CFAs, and business advisors has served over 200 businesses across Georgia, Tennessee, and the Carolinas. We specialize in the $5M–$50M revenue range — companies large enough to need sophisticated financial guidance but lean enough that every dollar matters.\n\nOur approach is hands-on and relationship-driven. Every client gets a dedicated advisor who understands their industry, their goals, and their numbers. We don't just file returns — we help you build the financial infrastructure that supports sustainable growth.",
+            "founderName": "Catherine Hargrove, CPA",
+            "founderRole": "Managing Partner",
+            "mission": "To give every growing business the financial clarity and strategic confidence to reach their next milestone."
+          }
+        },
+        {
+          "type": "stats",
+          "props": {
+            "heading": "By the Numbers",
+            "stats": [
+              { "value": "15", "label": "Team Members" },
+              { "value": "200+", "label": "Businesses Served" },
+              { "value": "4", "label": "States Covered" },
+              { "value": "98", "label": "% Client Retention Rate" }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "/services",
+      "title": "Services — Cornerstone Advisory Group",
+      "description": "Tax strategy, fractional CFO, accounting, advisory, audit, and payroll services for mid-market businesses.",
+      "sections": [
+        {
+          "type": "services",
+          "props": {
+            "heading": "Our Services",
+            "subheading": "End-to-end financial services designed for businesses in the $5M–$50M revenue range.",
+            "services": [
+              { "title": "Tax Strategy & Planning", "description": "Proactive tax planning that minimizes liability and maximizes deductions for businesses and their owners.", "icon": "DollarSign" },
+              { "title": "Fractional CFO", "description": "Senior-level financial leadership on a part-time basis. Strategic planning, cash flow management, and board-ready reporting.", "icon": "TrendingUp" },
+              { "title": "Accounting & Bookkeeping", "description": "Accurate monthly financials, reconciliation, and reporting so you always know where you stand.", "icon": "BarChart3" },
+              { "title": "Business Advisory", "description": "Data-driven guidance for expansion, acquisitions, exit planning, and major capital decisions.", "icon": "Briefcase" },
+              { "title": "Audit & Assurance", "description": "Independent audits, reviews, and compilations that satisfy lenders, investors, and regulators.", "icon": "Shield" },
+              { "title": "Payroll & Compliance", "description": "Full-service payroll processing, tax filings, and compliance monitoring across multiple states.", "icon": "Users" }
+            ]
+          }
+        },
+        {
+          "type": "faq",
+          "props": {
+            "heading": "Frequently Asked Questions",
+            "items": [
+              {
+                "question": "What size businesses do you typically work with?",
+                "answer": "We specialize in mid-market businesses with annual revenue between $5M and $50M. This includes established companies looking to optimize and growing businesses preparing for their next stage."
+              },
+              {
+                "question": "What does a fractional CFO engagement look like?",
+                "answer": "Our fractional CFOs typically work 2–4 days per month with your team. They attend leadership meetings, produce board-ready financials, manage cash flow forecasting, and provide strategic guidance on major decisions."
+              },
+              {
+                "question": "Do you handle both business and personal taxes?",
+                "answer": "Yes. For business owners, personal and business tax strategy are deeply intertwined. We handle both to ensure your overall tax position is optimized."
+              },
+              {
+                "question": "How is pricing structured?",
+                "answer": "We use fixed monthly fees for ongoing services like accounting, bookkeeping, and fractional CFO. Project-based work like audits and tax planning is quoted upfront with no surprises."
+              },
+              {
+                "question": "Can you work with our existing accounting software?",
+                "answer": "Absolutely. We work with QuickBooks, Xero, NetSuite, and Sage. If a migration makes sense, we'll handle it — but we never force a switch."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "/portfolio",
+      "title": "Case Studies — Cornerstone Advisory Group",
+      "description": "See how Cornerstone Advisory has helped mid-market businesses improve their financial operations and achieve growth milestones.",
+      "sections": [
+        {
+          "type": "portfolio",
+          "props": {
+            "heading": "Case Studies",
+            "subheading": "A selection of client engagements that demonstrate our approach and impact.",
+            "projects": [
+              {
+                "title": "Magnolia Holdings — Tax Restructuring",
+                "description": "Restructured entity architecture for a real estate holding company, saving $180K in annual tax liability.",
+                "image": "https://placehold.co/800x600/1a365d/ffffff",
+                "tags": ["Tax Strategy", "Real Estate"]
+              },
+              {
+                "title": "NovaTech Solutions — Series A Readiness",
+                "description": "Provided fractional CFO services and financial modeling that helped close a $4.2M Series A round.",
+                "image": "https://placehold.co/800x600/2a4365/ffffff",
+                "tags": ["Fractional CFO", "SaaS"]
+              },
+              {
+                "title": "Cascade Logistics — Multi-State Payroll",
+                "description": "Migrated payroll operations across 4 states with zero missed deadlines during the transition.",
+                "image": "https://placehold.co/800x600/1a365d/ffffff",
+                "tags": ["Payroll", "Compliance"]
+              },
+              {
+                "title": "Southline Manufacturing — Monthly Close",
+                "description": "Reduced month-end close from 21 days to 5 days by streamlining accounting processes and automation.",
+                "image": "https://placehold.co/800x600/2a4365/ffffff",
+                "tags": ["Accounting", "Manufacturing"]
+              },
+              {
+                "title": "Peach State Medical Group — Practice Acquisition",
+                "description": "Due diligence and financial advisory for a $12M medical practice acquisition, including valuation and deal structuring.",
+                "image": "https://placehold.co/800x600/1a365d/ffffff",
+                "tags": ["Advisory", "Healthcare"]
+              },
+              {
+                "title": "Riverview Hospitality — Audit & Compliance",
+                "description": "Completed first-ever independent audit for a growing hotel group, enabling bank financing for expansion.",
+                "image": "https://placehold.co/800x600/2a4365/ffffff",
+                "tags": ["Audit", "Hospitality"]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "/contact",
+      "title": "Contact Us — Cornerstone Advisory Group",
+      "description": "Schedule a consultation with Cornerstone Advisory Group. Offices in Atlanta, GA.",
+      "sections": [
+        {
+          "type": "contact",
+          "props": {
+            "heading": "Start the Conversation",
+            "subheading": "Schedule a complimentary 30-minute consultation. We'll discuss your business, your goals, and whether we're the right fit.",
+            "email": "hello@cornerstoneadvisory.com",
+            "phone": "(404) 555-0283",
+            "address": "1200 Peachtree St NE, Suite 400, Atlanta, GA 30309"
+          }
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "siteName": "Cornerstone Advisory Group",
+    "keywords": ["accounting firm atlanta", "fractional cfo", "tax strategy", "business advisory", "cpa firm georgia"]
+  }
+}

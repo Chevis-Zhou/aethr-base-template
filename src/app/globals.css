@@ -1,0 +1,82 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --font-sans: var(--font-body-family);
+  --font-heading: var(--font-heading-family);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  /* Client token primitives — overridden by inline styles from layout.tsx */
+  --primary-h: 220;
+  --primary-s: 70%;
+  --primary-l: 50%;
+  --secondary-h: 160;
+  --secondary-s: 60%;
+  --secondary-l: 45%;
+  --accent-h: 30;
+  --accent-s: 90%;
+  --accent-l: 55%;
+  --radius: 0.5rem;
+
+  /* Computed colors from token primitives */
+  --background: hsl(var(--primary-h) 10% 98%);
+  --foreground: hsl(var(--primary-h) 10% 10%);
+  --primary: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
+  --primary-foreground: hsl(var(--primary-h) var(--primary-s) 98%);
+  --secondary: hsl(var(--secondary-h) var(--secondary-s) var(--secondary-l));
+  --secondary-foreground: hsl(var(--secondary-h) var(--secondary-s) 98%);
+  --accent: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
+  --accent-foreground: hsl(var(--accent-h) var(--accent-s) 15%);
+  --muted: hsl(var(--primary-h) 10% 94%);
+  --muted-foreground: hsl(var(--primary-h) 10% 45%);
+  --card: hsl(var(--primary-h) 10% 100%);
+  --card-foreground: hsl(var(--primary-h) 10% 10%);
+  --popover: hsl(var(--primary-h) 10% 100%);
+  --popover-foreground: hsl(var(--primary-h) 10% 10%);
+  --border: hsl(var(--primary-h) 10% 88%);
+  --input: hsl(var(--primary-h) 10% 88%);
+  --ring: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
+  --destructive: hsl(0 84% 60%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body-family);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading-family);
+  }
+}

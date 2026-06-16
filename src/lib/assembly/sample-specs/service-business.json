@@ -1,0 +1,176 @@
+{
+  "client": {
+    "name": "Apex Plumbing & HVAC",
+    "tagline": "Reliable home comfort, any time of day",
+    "description": "Apex Plumbing & HVAC provides 24/7 plumbing, heating, and cooling services to homeowners in the greater Portland area. Licensed, insured, and trusted since 2009.",
+    "email": "service@apexplumbinghvac.com",
+    "phone": "(503) 555-0147",
+    "address": "8240 SE Foster Rd, Portland, OR 97206",
+    "social": {
+      "facebook": "https://facebook.com/apexplumbinghvac",
+      "instagram": "https://instagram.com/apexplumbinghvac"
+    }
+  },
+  "tokens": {
+    "primaryHue": "210",
+    "primarySaturation": "80%",
+    "primaryLightness": "45%",
+    "secondaryHue": "200",
+    "secondarySaturation": "10%",
+    "secondaryLightness": "45%",
+    "accentHue": "25",
+    "accentSaturation": "90%",
+    "accentLightness": "50%",
+    "fontHeading": "DM Sans",
+    "fontBody": "Inter",
+    "radius": "0.5rem"
+  },
+  "pages": [
+    {
+      "slug": "/",
+      "title": "Apex Plumbing & HVAC — Portland's Trusted Home Comfort Experts",
+      "description": "24/7 plumbing, heating, and cooling services in Portland, OR. Licensed, insured, and trusted since 2009. Call (503) 555-0147.",
+      "sections": [
+        {
+          "type": "hero",
+          "props": {
+            "headline": "Your Home Comfort Is Our Priority",
+            "subheadline": "24/7 emergency plumbing, heating, and cooling services across the greater Portland area. Licensed, insured, and backed by 500+ five-star reviews.",
+            "ctaText": "Schedule Service",
+            "ctaHref": "/contact"
+          }
+        },
+        {
+          "type": "services",
+          "props": {
+            "heading": "What We Do",
+            "subheading": "From leaky faucets to full HVAC installs, we handle it all.",
+            "services": [
+              { "title": "Plumbing Repair", "description": "Leak detection, pipe repair, drain clearing, and fixture replacements. Same-day service available.", "icon": "Zap" },
+              { "title": "Water Heater Service", "description": "Tank and tankless water heater installation, repair, and annual maintenance.", "icon": "Settings" },
+              { "title": "HVAC Installation", "description": "Energy-efficient furnace and air conditioning systems sized for your home.", "icon": "Monitor" },
+              { "title": "Emergency Service", "description": "Burst pipe at 2 AM? We answer the phone 24/7, 365 days a year.", "icon": "Shield" },
+              { "title": "Preventive Maintenance", "description": "Annual tune-ups that catch small problems before they become expensive repairs.", "icon": "Heart" }
+            ]
+          }
+        },
+        {
+          "type": "stats",
+          "props": {
+            "stats": [
+              { "value": "500+", "label": "Jobs Completed" },
+              { "value": "15", "label": "Years in Business" },
+              { "value": "4.9", "label": "Average Star Rating" },
+              { "value": "24", "label": "Hour Response Time" }
+            ]
+          }
+        },
+        {
+          "type": "cta-band",
+          "props": {
+            "heading": "Need Service Today?",
+            "subheading": "We offer same-day appointments for most repairs.",
+            "ctaText": "Book Now",
+            "ctaHref": "/contact",
+            "variant": "accent"
+          }
+        },
+        {
+          "type": "testimonials",
+          "props": {
+            "heading": "What Our Customers Say",
+            "testimonials": [
+              {
+                "quote": "They fixed our burst pipe on a Sunday morning in under two hours. Can't recommend them enough.",
+                "author": "Maria Gonzalez",
+                "role": "Homeowner",
+                "company": "SE Portland"
+              },
+              {
+                "quote": "Professional, on time, and reasonably priced. They've been our go-to for three years running.",
+                "author": "David Chen",
+                "role": "Property Manager",
+                "company": "Eastside Rentals"
+              },
+              {
+                "quote": "The HVAC team installed a new heat pump in one day. Our energy bill dropped 30% the first month.",
+                "author": "Sarah Whitfield",
+                "role": "Homeowner",
+                "company": "Lake Oswego"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "/about",
+      "title": "About Us — Apex Plumbing & HVAC",
+      "description": "Family-owned since 2009. Learn about the team behind Portland's most trusted plumbing and HVAC company.",
+      "sections": [
+        {
+          "type": "about",
+          "props": {
+            "heading": "About Apex Plumbing & HVAC",
+            "story": "Apex Plumbing & HVAC started in 2009 when founder Mike Torres left a national chain to build something better: a local company that treats every home like its own.\n\nFifteen years later, we're still family-owned, still answering our own phones, and still showing up on time. Our team of 12 licensed technicians serves over 500 households a year across Portland, Lake Oswego, Beaverton, and Tigard.\n\nWe believe in transparent pricing, clean work sites, and repairs that last. Every job comes with a written estimate before we start and a satisfaction guarantee after we finish.",
+            "founderName": "Mike Torres",
+            "founderRole": "Owner & Master Plumber",
+            "mission": "To deliver honest, reliable home comfort services that our neighbors can count on — day or night."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "/services",
+      "title": "Our Services — Apex Plumbing & HVAC",
+      "description": "Full-service plumbing and HVAC for Portland homeowners. Emergency repairs, installations, and preventive maintenance.",
+      "sections": [
+        {
+          "type": "services",
+          "props": {
+            "heading": "Our Services",
+            "subheading": "Licensed, insured, and ready to help — from routine maintenance to emergency calls.",
+            "services": [
+              { "title": "Plumbing Repair", "description": "Leak detection, pipe repair, drain clearing, and fixture replacements. Same-day service available.", "icon": "Zap" },
+              { "title": "Water Heater Service", "description": "Tank and tankless water heater installation, repair, and annual maintenance.", "icon": "Settings" },
+              { "title": "HVAC Installation", "description": "Energy-efficient furnace and air conditioning systems sized for your home.", "icon": "Monitor" },
+              { "title": "Emergency Service", "description": "Burst pipe at 2 AM? We answer the phone 24/7, 365 days a year.", "icon": "Shield" },
+              { "title": "Preventive Maintenance", "description": "Annual tune-ups that catch small problems before they become expensive repairs.", "icon": "Heart" }
+            ]
+          }
+        },
+        {
+          "type": "cta-band",
+          "props": {
+            "heading": "Ready to Get Started?",
+            "subheading": "Call us or fill out the form — we'll get back to you within the hour.",
+            "ctaText": "Contact Us",
+            "ctaHref": "/contact",
+            "variant": "primary"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "/contact",
+      "title": "Contact Us — Apex Plumbing & HVAC",
+      "description": "Schedule plumbing or HVAC service in Portland, OR. Call (503) 555-0147 or fill out our online form.",
+      "sections": [
+        {
+          "type": "contact",
+          "props": {
+            "heading": "Get in Touch",
+            "subheading": "Need service? Fill out the form or call us directly. We respond within one hour during business hours.",
+            "email": "service@apexplumbinghvac.com",
+            "phone": "(503) 555-0147",
+            "address": "8240 SE Foster Rd, Portland, OR 97206"
+          }
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "siteName": "Apex Plumbing & HVAC",
+    "keywords": ["plumber portland", "hvac portland", "emergency plumbing", "furnace repair", "water heater installation"]
+  }
+}

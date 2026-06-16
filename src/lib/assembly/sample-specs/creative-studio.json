@@ -1,0 +1,222 @@
+{
+  "client": {
+    "name": "Bloom Creative Studio",
+    "tagline": "Photography and interior design that tells your story",
+    "description": "Bloom Creative Studio is a boutique photography and interior design firm in Austin, TX. We create elevated visual experiences for brands, homes, and editorial clients.",
+    "email": "hello@bloomcreativestudio.com",
+    "phone": "(512) 555-0391",
+    "address": "1401 E 6th St, Austin, TX 78702",
+    "social": {
+      "instagram": "https://instagram.com/bloomcreativestudio",
+      "facebook": "https://facebook.com/bloomcreativestudio",
+      "linkedin": "https://linkedin.com/company/bloom-creative-studio"
+    }
+  },
+  "tokens": {
+    "primaryHue": "350",
+    "primarySaturation": "60%",
+    "primaryLightness": "50%",
+    "secondaryHue": "150",
+    "secondarySaturation": "30%",
+    "secondaryLightness": "45%",
+    "accentHue": "15",
+    "accentSaturation": "80%",
+    "accentLightness": "60%",
+    "fontHeading": "Sora",
+    "fontBody": "Nunito",
+    "radius": "0.75rem"
+  },
+  "pages": [
+    {
+      "slug": "/",
+      "title": "Bloom Creative Studio — Photography & Interior Design in Austin",
+      "description": "Boutique photography and interior design studio in Austin, TX. Brand photography, editorial, residential interiors, and commercial spaces.",
+      "sections": [
+        {
+          "type": "hero",
+          "props": {
+            "headline": "Visual Stories That Stay With You",
+            "subheadline": "We're a boutique creative studio specializing in photography and interior design. From brand campaigns to living rooms, we create spaces and images that feel intentional.",
+            "ctaText": "View Our Work",
+            "ctaHref": "/portfolio"
+          }
+        },
+        {
+          "type": "portfolio",
+          "props": {
+            "heading": "Selected Work",
+            "subheading": "A sample of recent projects across brand, editorial, and interior design.",
+            "projects": [
+              {
+                "title": "Sable Coffee Roasters — Brand Identity",
+                "description": "Full brand photography suite for a specialty coffee roaster. Product, lifestyle, and team portraits.",
+                "image": "https://placehold.co/800x600/8b4560/ffffff",
+                "tags": ["Brand Photography", "Food & Beverage"],
+                "link": "/portfolio"
+              },
+              {
+                "title": "Westlake Modern — Residential Interior",
+                "description": "Complete interior design for a 3,200 sq ft mid-century modern home in Westlake Hills.",
+                "image": "https://placehold.co/800x600/5a7a6a/ffffff",
+                "tags": ["Interior Design", "Residential"],
+                "link": "/portfolio"
+              },
+              {
+                "title": "Lone Star Editorial — Magazine Feature",
+                "description": "Cover story and interior spread for Austin Monthly's annual design issue.",
+                "image": "https://placehold.co/800x600/c97860/ffffff",
+                "tags": ["Editorial", "Print"],
+                "link": "/portfolio"
+              },
+              {
+                "title": "Verdant Wellness — Spa Design",
+                "description": "Interior concept and photography for a new wellness spa in the East Austin creative district.",
+                "image": "https://placehold.co/800x600/8b4560/ffffff",
+                "tags": ["Interior Design", "Commercial"],
+                "link": "/portfolio"
+              }
+            ]
+          }
+        },
+        {
+          "type": "testimonials",
+          "props": {
+            "heading": "Kind Words",
+            "testimonials": [
+              {
+                "quote": "Bloom transformed our brand visuals completely. The photos they took are still the backbone of our marketing two years later.",
+                "author": "Elena Vasquez",
+                "role": "Founder",
+                "company": "Sable Coffee Roasters"
+              },
+              {
+                "quote": "Working with their interior design team felt effortless. They listened to how we actually live and created a home that reflects it.",
+                "author": "Marcus & Julia Chen",
+                "role": "Homeowners",
+                "company": "Westlake Hills"
+              },
+              {
+                "quote": "The editorial shoot was flawless. They managed a 12-hour day with three locations and delivered above expectations.",
+                "author": "Rachel Kim",
+                "role": "Editor-in-Chief",
+                "company": "Austin Monthly"
+              }
+            ]
+          }
+        },
+        {
+          "type": "cta-band",
+          "props": {
+            "heading": "Have a Project in Mind?",
+            "subheading": "We'd love to hear about it. Reach out and let's see if we're the right fit.",
+            "ctaText": "Get in Touch",
+            "ctaHref": "/contact",
+            "variant": "accent"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "/about",
+      "title": "About — Bloom Creative Studio",
+      "description": "Meet the team behind Bloom Creative Studio. A small, focused team of photographers and designers in Austin, TX.",
+      "sections": [
+        {
+          "type": "about",
+          "props": {
+            "heading": "About Bloom",
+            "story": "Bloom Creative Studio was founded in 2018 by Natalie Reeves, a photographer and interior designer who saw the gap between how spaces look and how they feel.\n\nOur small team of four brings together editorial photography, residential interiors, and brand strategy under one roof. We work slowly and intentionally — typically taking on 3–4 projects at a time so every client gets our full attention.\n\nWe're based in East Austin's creative district, surrounded by the makers, chefs, and entrepreneurs who inspire our work. Most of our clients come through referrals, which tells us we're doing something right.",
+            "founderName": "Natalie Reeves",
+            "founderRole": "Founder & Creative Director",
+            "mission": "To create visual experiences that feel as good as they look — spaces you want to live in and images you want to keep."
+          }
+        }
+      ]
+    },
+    {
+      "slug": "/portfolio",
+      "title": "Portfolio — Bloom Creative Studio",
+      "description": "Browse our portfolio of brand photography, editorial work, and interior design projects in Austin and beyond.",
+      "sections": [
+        {
+          "type": "portfolio",
+          "props": {
+            "heading": "Our Work",
+            "subheading": "Selected projects across photography and interior design.",
+            "projects": [
+              {
+                "title": "Sable Coffee Roasters — Brand Identity",
+                "description": "Full brand photography suite for a specialty coffee roaster. Product, lifestyle, and team portraits.",
+                "image": "https://placehold.co/800x600/8b4560/ffffff",
+                "tags": ["Brand Photography", "Food & Beverage"]
+              },
+              {
+                "title": "Westlake Modern — Residential Interior",
+                "description": "Complete interior design for a 3,200 sq ft mid-century modern home in Westlake Hills.",
+                "image": "https://placehold.co/800x600/5a7a6a/ffffff",
+                "tags": ["Interior Design", "Residential"]
+              },
+              {
+                "title": "Lone Star Editorial — Magazine Feature",
+                "description": "Cover story and interior spread for Austin Monthly's annual design issue.",
+                "image": "https://placehold.co/800x600/c97860/ffffff",
+                "tags": ["Editorial", "Print"]
+              },
+              {
+                "title": "Verdant Wellness — Spa Design",
+                "description": "Interior concept and photography for a new wellness spa in the East Austin creative district.",
+                "image": "https://placehold.co/800x600/8b4560/ffffff",
+                "tags": ["Interior Design", "Commercial"]
+              },
+              {
+                "title": "Hill Country Retreat — Vacation Rental",
+                "description": "Interior styling and photography for a luxury Airbnb in Dripping Springs. Listed within a week of launch.",
+                "image": "https://placehold.co/800x600/5a7a6a/ffffff",
+                "tags": ["Interior Design", "Hospitality"]
+              },
+              {
+                "title": "Mara Skincare — Product Launch",
+                "description": "Product and lifestyle photography for a clean beauty brand's inaugural collection.",
+                "image": "https://placehold.co/800x600/c97860/ffffff",
+                "tags": ["Brand Photography", "Beauty"]
+              },
+              {
+                "title": "East Side Social — Restaurant Branding",
+                "description": "Full visual identity including interior consultation, food photography, and brand portraits for a new East Austin restaurant.",
+                "image": "https://placehold.co/800x600/8b4560/ffffff",
+                "tags": ["Brand Photography", "Food & Beverage"]
+              },
+              {
+                "title": "The Gather — Co-Working Space",
+                "description": "Interior design and ongoing photography partnership for a women-focused co-working space in South Lamar.",
+                "image": "https://placehold.co/800x600/5a7a6a/ffffff",
+                "tags": ["Interior Design", "Commercial"]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "slug": "/contact",
+      "title": "Contact — Bloom Creative Studio",
+      "description": "Get in touch with Bloom Creative Studio. Studio located in East Austin, TX.",
+      "sections": [
+        {
+          "type": "contact",
+          "props": {
+            "heading": "Let's Create Something Together",
+            "subheading": "Tell us about your project. We typically respond within one business day.",
+            "email": "hello@bloomcreativestudio.com",
+            "phone": "(512) 555-0391",
+            "address": "1401 E 6th St, Austin, TX 78702"
+          }
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "siteName": "Bloom Creative Studio",
+    "keywords": ["photographer austin", "interior designer austin", "brand photography", "residential interior design", "editorial photography"]
+  }
+}

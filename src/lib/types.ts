@@ -1,0 +1,10 @@
+export type { HeroProps } from "@/components/sections/hero";
+export type { AboutProps } from "@/components/sections/about";
+export type { ServicesProps } from "@/components/sections/services";
+export type { PortfolioProps } from "@/components/sections/portfolio";
+export type { TestimonialsProps } from "@/components/sections/testimonials";
+export type { ContactProps } from "@/components/sections/contact";
+export type { FooterProps } from "@/components/sections/footer";
+export type { FAQProps } from "@/components/sections/faq";
+export type { CTABandProps } from "@/components/sections/cta-band";
+export type { StatsProps } from "@/components/sections/stats";
