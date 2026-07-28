@@ -37,12 +37,26 @@ export default function RootLayout({
     "--radius": tokens.radius,
   };
 
+  // The token pair above only names the faces — without this nothing fetches them and
+  // every generated site silently falls back. Deduped so a spec reusing one family
+  // for both slots doesn't request it twice.
+  const googleFontsHref = `https://fonts.googleapis.com/css2?${[
+    ...new Set([tokens.fontHeading, tokens.fontBody].filter(Boolean)),
+  ]
+    .map((f) => `family=${encodeURIComponent(f).replace(/%20/g, "+")}:wght@400;500;600;700`)
+    .join("&")}&display=swap`;
+
   return (
     <html
       lang="en"
       className={`${inter.variable} h-full antialiased`}
       style={tokenStyles as React.CSSProperties}
     >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="stylesheet" href={googleFontsHref} />
+      </head>
       <body className="flex min-h-full flex-col">
         <Header siteName={clientConfig.name} nav={clientConfig.nav} />
         <main className="flex-1">{children}</main>
