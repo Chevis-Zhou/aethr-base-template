@@ -30,6 +30,8 @@ function serializeValue(value: unknown, indent = 0): string {
   return String(value);
 }
 
+const JSX_ATTR_UNSAFE = /["\\\r\n]|&[a-zA-Z#][a-zA-Z0-9]*;/;
+
 function isComplex(value: unknown): boolean {
   return Array.isArray(value) || (typeof value === "object" && value !== null);
 }
@@ -141,7 +143,14 @@ export function generatePage(page: SiteSpec["pages"][number]): string {
         constDeclarations.push(`const ${varName} = ${serializeValue(value, 0)};`);
         refAttrs.push(`${key}={${varName}}`);
       } else if (typeof value === "string") {
-        inlineAttrs.push(`${key}=${JSON.stringify(value)}`);
+        // A JSX attribute string is raw text, not a JS string literal: a bare `"` ends it,
+        // `\"` stays a literal backslash, and entity-shaped runs get decoded. Anything the
+        // plain form would mangle goes through an expression container, which IS JS.
+        inlineAttrs.push(
+          JSX_ATTR_UNSAFE.test(value)
+            ? `${key}={${JSON.stringify(value)}}`
+            : `${key}=${JSON.stringify(value)}`,
+        );
       } else {
         inlineAttrs.push(`${key}={${value}}`);
       }
