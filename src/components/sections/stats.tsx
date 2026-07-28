@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { motion, useInView, animate } from "framer-motion";
+import { motion, useInView, animate, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export interface StatsProps {
@@ -24,11 +24,21 @@ function parseValue(value: string) {
 function StatValue({ value }: { value: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const prefersReducedMotion = useReducedMotion();
   const parsed = parseValue(value);
 
   useEffect(() => {
-    if (!isInView || !parsed || !ref.current) return;
     const node = ref.current;
+    if (!parsed || !node || prefersReducedMotion) return;
+
+    // Reset to 0 imperatively rather than through render: the true value is what SSR emits,
+    // so a crawler, a social unfurl, or a no-JS reader never sees a zero. Only a browser that
+    // is actually going to animate ever puts one on screen.
+    if (!isInView) {
+      node.textContent = `0${parsed.suffix}`;
+      return;
+    }
+
     const controls = animate(0, parsed.target, {
       duration: 1.5,
       ease: "easeOut",
@@ -37,9 +47,9 @@ function StatValue({ value }: { value: string }) {
       },
     });
     return () => controls.stop();
-  }, [isInView, parsed]);
+  }, [isInView, parsed, prefersReducedMotion]);
 
-  return <span ref={ref}>{parsed ? `0${parsed.suffix}` : value}</span>;
+  return <span ref={ref}>{value}</span>;
 }
 
 export function StatsSection({ heading, stats }: StatsProps) {
