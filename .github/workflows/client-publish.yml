@@ -73,7 +73,22 @@ jobs:
       # qa-specification.md §7 makes manifest coverage blocking, and this is what lets a
       # client's own upload clear it without a Mac in the loop.
       - name: Install the lossless image tools
-        run: sudo apt-get update && sudo apt-get install -y oxipng libjpeg-turbo-progs zopfli
+        # `oxipng` is not in Ubuntu's archive — it is a Rust binary distributed on GitHub —
+        # so asking apt for it took the whole job down with exit 100 before anything was
+        # built. `optimize-images.ts` degrades per binary (`has("oxipng")` → skip the PNG
+        # pass), which is what makes a missing tool survivable; a package manager told to
+        # install it is not. Pinned rather than `latest` so a publish never changes its
+        # compression behaviour because upstream cut a release.
+        env:
+          OXIPNG_VERSION: 10.2.1
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libjpeg-turbo-progs zopfli
+          dir="oxipng-${OXIPNG_VERSION}-x86_64-unknown-linux-musl"
+          curl -fsSL "https://github.com/oxipng/oxipng/releases/download/v${OXIPNG_VERSION}/${dir}.tar.gz" \
+            | tar xz -C /tmp
+          sudo install "/tmp/${dir}/oxipng" /usr/local/bin/oxipng
+          oxipng --version && zopflipng --help >/dev/null 2>&1 && jpegtran -version 2>&1 | head -1 || true
 
       - name: Install Chromium for the fast gate
         run: pnpm exec playwright install --with-deps chromium
