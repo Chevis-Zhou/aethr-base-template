@@ -6,6 +6,26 @@ status: active
 
 ## Where we left off
 
+**2026-09-10 — this repo is on GitHub again, and the shared builder has now run.**
+`origin/main` had been stuck at 2026-08-21: everything from Phase 5 onward — the assembler,
+the deploy and QA layers, the edit layer, and `client-publish.yml` itself — existed only in
+this working tree. That is survivable for the Mac paths, which execute files in place, and
+fatal for the assembled publish path, which dispatches a workflow *on GitHub*. So the cloud
+builder could not have run whatever its secrets said. Pushed as `0506782`.
+
+First run then failed at `E: Unable to locate package oxipng` — a Rust binary distributed on
+GitHub releases, not an Ubuntu package. `optimize-images.ts` tolerates a missing tool per
+binary; apt asked for it does not. Now installed from a pinned release (`2ee475f`).
+
+Second run reached the portal and was answered **404 "No such publish"** for a slug with
+nothing queued — **not 401**, which is what a wrong secret returns. That is
+`PORTAL_BUILD_SECRET` proven across the repo↔Worker boundary. Two links in the chain are
+still unexercised and both need a real assembled client: `GITHUB_DISPATCH_TOKEN` (the portal
+firing the dispatch) and `CLOUDFLARE_API_TOKEN` (the runner deploying). Every client on the
+books is `custom`, so there has been no occasion. Note the first deploy of any client still
+runs from the Mac regardless — a first-time Custom Domain attach fails auth 10000 with a zone
+token, so CI proves itself on a *re*-publish, not on the initial one.
+
 2026-09-10, seventeenth pass — **rich text, and reader #2.** Storefront Phase 9 v1.1
 (ticket 012). Nothing about ANALYSIS → QA → STAGING → DEPLOY changed; this all sits beside
 it, and `aethr-portal` is still the only consumer.
