@@ -1,0 +1,95 @@
+{
+  "client": {
+    "name": "Negative Control Co",
+    "tagline": "A fixture crafted to trip every blocker.",
+    "description": "Deliberately broken build for QA suite verification.",
+    "email": "hello@negativecontrol.test",
+    "phone": "813.444.6199",
+    "address": "Nowhere, FL",
+    "social": {}
+  },
+  "tokens": {
+    "primaryHue": "218",
+    "primarySaturation": "24%",
+    "primaryLightness": "27%",
+    "secondaryHue": "216",
+    "secondarySaturation": "18%",
+    "secondaryLightness": "34%",
+    "accentHue": "262",
+    "accentSaturation": "83%",
+    "accentLightness": "58%",
+    "fontHeading": "Inter",
+    "fontBody": "Inter",
+    "radius": "0.5rem"
+  },
+  "pages": [
+    {
+      "slug": "/",
+      "title": "12 topics we teach {{business}}",
+      "description": "TBD — undefined tutoring options, null pricing",
+      "sections": [
+        {
+          "type": "about",
+          "props": {
+            "eyebrow": "About",
+            "heading": "About the founder",
+            "story": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "founderRole": "Founder",
+            "founderImage": "/qa-fixtures/negative-control.jpg"
+          }
+        },
+        {
+          "type": "services",
+          "props": {
+            "eyebrow": "Topics",
+            "heading": "What we teach",
+            "services": [
+              { "title": "Algebra", "description": "Core algebra." },
+              { "title": "Geometry", "description": "Core geometry." },
+              { "title": "Statistics", "description": "Core statistics." },
+              { "title": "Chemistry", "description": "Core chemistry." },
+              { "title": "Writing", "description": "Core writing." }
+            ]
+          }
+        },
+        {
+          "type": "faq",
+          "props": {
+            "eyebrow": "FAQ",
+            "heading": "Frequently Asked Questions",
+            "items": []
+          }
+        },
+        {
+          "type": "cta-band",
+          "props": {
+            "heading": "Get in touch",
+            "ctaText": "Contact us",
+            "ctaHref": "#does-not-exist"
+          }
+        },
+        {
+          "type": "contact",
+          "props": {
+            "heading": "Contact",
+            "email": "hello@negativecontrol.test",
+            "phone": "813.444.6199",
+            "address": "Also reach us at rogue@example.com or 555-123-4567"
+          }
+        },
+        {
+          "type": "footer",
+          "props": {
+            "companyName": "Negative Control Co",
+            "copyright": "© 2026 Negative Control Co",
+            "navLinks": [{ "label": "Dead Link", "href": "/this-page-does-not-exist" }],
+            "socialLinks": {}
+          }
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "siteName": "Negative Control Co"
+  }
+}

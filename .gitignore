@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated per-client at deploy time
+/wrangler.jsonc
+/.deploy/
+/.wrangler/
+
+# QA suite — generated reports and the image-optimization manifest
+/qa-runs/
+/qa-verification/
+/.image-manifest.json

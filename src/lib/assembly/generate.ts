@@ -10,7 +10,11 @@ function serializeValue(value: unknown, indent = 0): string {
   const closePad = "  ".repeat(indent);
 
   if (Array.isArray(value)) {
-    if (value.length === 0) return "[]";
+    // `never[]` is assignable to every array-typed prop, so an empty array survives being
+    // hoisted into its own `const` — a bare `[]` there has no contextual type to infer
+    // from and TypeScript reports "implicitly has type 'any[]'" (found by the QA suite's
+    // negative control, `faq.items: []`).
+    if (value.length === 0) return "[] as never[]";
     const items = value.map((v) => `${pad}${serializeValue(v, indent + 1)}`);
     return `[\n${items.join(",\n")},\n${closePad}]`;
   }
@@ -158,14 +162,19 @@ export function generatePage(page: SiteSpec["pages"][number]): string {
 
     const allAttrs = [...inlineAttrs, ...refAttrs];
 
+    // A section's type name is also the in-page anchor id: the CTA/nav hrefs a spec
+    // authors for a single-page layout (`#about`, `#contact`, ...) are section type names,
+    // per SPEC-FORMAT's CTA target list, so this wrapper is what makes them resolve at all.
+    let element: string;
     if (allAttrs.length === 0) {
-      jsxElements.push(`      <${meta.componentName} />`);
+      element = `      <${meta.componentName} />`;
     } else if (allAttrs.length <= 3 && allAttrs.every((a) => a.length < 50)) {
-      jsxElements.push(`      <${meta.componentName} ${allAttrs.join(" ")} />`);
+      element = `      <${meta.componentName} ${allAttrs.join(" ")} />`;
     } else {
       const formatted = allAttrs.map((a) => `        ${a}`).join("\n");
-      jsxElements.push(`      <${meta.componentName}\n${formatted}\n      />`);
+      element = `      <${meta.componentName}\n${formatted}\n      />`;
     }
+    jsxElements.push(`      <div id=${JSON.stringify(section.type)}>\n  ${element.trimStart()}\n      </div>`);
   }
 
   const metaExport = page.description

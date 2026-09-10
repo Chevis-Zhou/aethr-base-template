@@ -2,12 +2,22 @@
 
 import { useState, type FormEvent } from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { cn } from "../../lib/utils";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { TurnstileWidget } from "../ui/turnstile";
+
+/**
+ * Read at module scope so Next inlines it at BUILD into the static export. Empty on every
+ * client whose Turnstile widget has not been created yet — see `ui/turnstile.tsx` for why
+ * this is an env var rather than a `SiteSpec` field, and why an absent key must leave the
+ * shipped no-token behaviour exactly as it was.
+ */
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 export interface ContactProps {
+  eyebrow?: string;
   heading: string;
   subheading?: string;
   email: string;
@@ -19,6 +29,7 @@ export interface ContactProps {
 type SubmitStatus = "idle" | "loading" | "success" | "error";
 
 export function ContactSection({
+  eyebrow,
   heading,
   subheading,
   email,
@@ -28,9 +39,27 @@ export function ContactSection({
 }: ContactProps) {
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  // Turnstile tokens are single-use, so a successful send has to retire the widget.
+  // Bumping this key remounts it, which is cheaper to reason about than an imperative
+  // reset handle and cleans up the old widget through the component's own teardown.
+  const [widgetKey, setWidgetKey] = useState(0);
+  // The script being blocked or offline must not lock a visitor out of the form: the
+  // Worker is the gate, and it rejects a missing token on its own terms.
+  const [turnstileUnavailable, setTurnstileUnavailable] = useState(false);
+  const turnstileActive = Boolean(TURNSTILE_SITE_KEY) && !turnstileUnavailable;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (turnstileActive && !turnstileToken) {
+      // The challenge normally resolves in about a second, so this is a "wait a moment"
+      // rather than a rejection — and it is why the button is not disabled instead: a
+      // permanently dead button with no explanation is the worse failure.
+      setErrorMessage("Just a moment while we verify you are human, then try again.");
+      setStatus("error");
+      return;
+    }
+
     setStatus("loading");
     setErrorMessage("");
 
@@ -41,6 +70,9 @@ export function ContactSection({
       email: String(formData.get("email") ?? ""),
       phone: String(formData.get("phone") ?? ""),
       message: String(formData.get("message") ?? ""),
+      // Omitted entirely when there is no key, so the request body is unchanged on every
+      // client that has no Turnstile widget yet.
+      ...(turnstileToken ? { turnstileToken } : {}),
     };
 
     try {
@@ -54,7 +86,11 @@ export function ContactSection({
       if (result.success) {
         setStatus("success");
         form.reset();
+        setTurnstileToken(null);
+        setWidgetKey((key) => key + 1);
       } else {
+        setTurnstileToken(null);
+        setWidgetKey((key) => key + 1);
         setStatus("error");
         setErrorMessage(result.error ?? "Something went wrong. Please try again.");
       }
@@ -75,9 +111,14 @@ export function ContactSection({
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className={cn("grid gap-12", showForm && "lg:grid-cols-2 lg:gap-16")}>
           <div>
-            <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              {heading}
-            </h2>
+            {eyebrow && (
+              <p className="mb-3 text-sm font-semibold tracking-wide text-primary uppercase">{eyebrow}</p>
+            )}
+            {heading && (
+              <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                {heading}
+              </h2>
+            )}
             {subheading && <p className="mt-4 text-lg text-muted-foreground">{subheading}</p>}
 
             <ul className="mt-8 space-y-4">
@@ -126,6 +167,15 @@ export function ContactSection({
                 </label>
                 <Textarea id="message" name="message" rows={5} required />
               </div>
+
+              {TURNSTILE_SITE_KEY && (
+                <TurnstileWidget
+                  key={widgetKey}
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onToken={setTurnstileToken}
+                  onUnavailable={() => setTurnstileUnavailable(true)}
+                />
+              )}
 
               <Button
                 type="submit"

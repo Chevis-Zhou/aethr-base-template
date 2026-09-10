@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { clientConfig } from "@/lib/client-config";
+import { foregroundVars } from "@/lib/theme/derive";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import "./globals.css";
@@ -32,6 +33,9 @@ export default function RootLayout({
     "--accent-h": tokens.accentHue,
     "--accent-s": tokens.accentSaturation,
     "--accent-l": tokens.accentLightness,
+    // Foreground polarity, derived from the three surfaces rather than fixed per role —
+    // see src/lib/theme/derive.ts.
+    ...foregroundVars(tokens),
     "--font-heading-family": tokens.fontHeading,
     "--font-body-family": tokens.fontBody,
     "--radius": tokens.radius,

@@ -1,72 +1,32 @@
-import {
-  Palette,
-  Code,
-  BarChart3,
-  Users,
-  Globe,
-  Shield,
-  Zap,
-  Heart,
-  Star,
-  Settings,
-  MessageSquare,
-  TrendingUp,
-  Briefcase,
-  Camera,
-  PenTool,
-  Layers,
-  Monitor,
-  Smartphone,
-  Mail,
-  DollarSign,
-  Sparkles,
-  type LucideIcon,
-} from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
-const ICON_MAP: Record<string, LucideIcon> = {
-  Palette,
-  Code,
-  BarChart3,
-  Users,
-  Globe,
-  Shield,
-  Zap,
-  Heart,
-  Star,
-  Settings,
-  MessageSquare,
-  TrendingUp,
-  Briefcase,
-  Camera,
-  PenTool,
-  Layers,
-  Monitor,
-  Smartphone,
-  Mail,
-  DollarSign,
-};
+import { Card, CardHeader, CardTitle, CardDescription } from "../ui/card";
+import { resolveIcon } from "./icon-map";
 
 export interface ServicesProps {
+  eyebrow?: string;
   heading: string;
   subheading?: string;
   services: { title: string; description: string; icon?: string }[];
 }
 
-export function ServicesSection({ heading, subheading, services }: ServicesProps) {
+export function ServicesSection({ eyebrow, heading, subheading, services }: ServicesProps) {
   return (
     <section className="py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            {heading}
-          </h2>
+          {eyebrow && (
+            <p className="mb-3 text-sm font-semibold tracking-wide text-primary uppercase">{eyebrow}</p>
+          )}
+          {heading && (
+            <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              {heading}
+            </h2>
+          )}
           {subheading && <p className="mt-4 text-lg text-muted-foreground">{subheading}</p>}
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => {
-            const Icon = (service.icon && ICON_MAP[service.icon]) || Sparkles;
+            const Icon = resolveIcon(service.icon);
             return (
               <Card key={service.title} className="transition-shadow hover:shadow-lg">
                 <CardHeader>
@@ -74,7 +34,9 @@ export function ServicesSection({ heading, subheading, services }: ServicesProps
                     <Icon className="h-5 w-5" />
                   </div>
                   <CardTitle className="mt-4 text-lg">{service.title}</CardTitle>
-                  <CardDescription>{service.description}</CardDescription>
+                  {service.description && (
+                    <CardDescription>{service.description}</CardDescription>
+                  )}
                 </CardHeader>
               </Card>
             );

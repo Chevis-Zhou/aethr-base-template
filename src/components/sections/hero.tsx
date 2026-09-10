@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { motion } from "motion/react";
+import { cn } from "../../lib/utils";
+import { buttonVariants } from "../ui/button";
 
 export interface HeroProps {
+  eyebrow?: string;
   headline: string;
   subheadline: string;
   ctaText: string;
@@ -14,6 +15,7 @@ export interface HeroProps {
 }
 
 export function HeroSection({
+  eyebrow,
   headline,
   subheadline,
   ctaText,
@@ -35,28 +37,45 @@ export function HeroSection({
       )}
 
       <div className="mx-auto w-full max-w-7xl px-4 py-24 text-center sm:px-6">
-        <motion.h1
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className={cn(
-            "font-heading text-4xl font-bold tracking-tight text-balance sm:text-6xl lg:text-7xl",
-            backgroundImage ? "text-white" : "text-foreground"
-          )}
-        >
-          {headline}
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-          className={cn(
-            "mx-auto mt-6 max-w-2xl text-balance text-lg sm:text-xl",
-            backgroundImage ? "text-white/85" : "text-muted-foreground"
-          )}
-        >
-          {subheadline}
-        </motion.p>
+        {eyebrow && (
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className={cn(
+              "mb-3 text-sm font-semibold tracking-wide uppercase",
+              backgroundImage ? "text-white/85" : "text-primary"
+            )}
+          >
+            {eyebrow}
+          </motion.p>
+        )}
+        {headline && (
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className={cn(
+              "font-heading text-4xl font-bold tracking-tight text-balance sm:text-6xl lg:text-7xl",
+              backgroundImage ? "text-white" : "text-foreground"
+            )}
+          >
+            {headline}
+          </motion.h1>
+        )}
+        {subheadline && (
+          <motion.p
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+            className={cn(
+              "mx-auto mt-6 max-w-2xl text-balance text-lg sm:text-xl",
+              backgroundImage ? "text-white/85" : "text-muted-foreground"
+            )}
+          >
+            {subheadline}
+          </motion.p>
+        )}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}

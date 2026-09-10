@@ -1,19 +1,8 @@
 import { z } from "zod/v4";
+import { sectionSchema, sectionTypes, type SectionType } from "./section-props";
 
-export const sectionTypes = [
-  "hero",
-  "about",
-  "services",
-  "portfolio",
-  "testimonials",
-  "contact",
-  "footer",
-  "faq",
-  "cta-band",
-  "stats",
-] as const;
-
-export type SectionType = (typeof sectionTypes)[number];
+export { sectionTypes };
+export type { SectionType };
 
 const socialSchema = z.object({
   facebook: z.string().optional(),
@@ -33,7 +22,7 @@ const clientSchema = z.object({
   social: socialSchema.optional().default({}),
 });
 
-const tokensSchema = z.object({
+export const tokensSchema = z.object({
   primaryHue: z.string(),
   primarySaturation: z.string(),
   primaryLightness: z.string(),
@@ -46,11 +35,6 @@ const tokensSchema = z.object({
   fontHeading: z.string(),
   fontBody: z.string(),
   radius: z.string(),
-});
-
-const sectionSchema = z.object({
-  type: z.enum(sectionTypes),
-  props: z.record(z.string(), z.unknown()),
 });
 
 const pageSchema = z.object({

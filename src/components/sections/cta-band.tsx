@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { motion } from "motion/react";
+import { cn } from "../../lib/utils";
+import { buttonVariants } from "../ui/button";
 
 export interface CTABandProps {
+  eyebrow?: string;
   heading: string;
   subheading?: string;
   ctaText: string;
@@ -32,6 +33,7 @@ const VARIANT_STYLES: Record<
 };
 
 export function CTABandSection({
+  eyebrow,
   heading,
   subheading,
   ctaText,
@@ -49,7 +51,14 @@ export function CTABandSection({
         transition={{ duration: 0.5 }}
         className="mx-auto max-w-3xl px-4 text-center sm:px-6"
       >
-        <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">{heading}</h2>
+        {eyebrow && (
+          <p className="mb-3 text-sm font-semibold tracking-wide uppercase opacity-80">{eyebrow}</p>
+        )}
+        {heading && (
+          <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+            {heading}
+          </h2>
+        )}
         {subheading && <p className="mt-4 text-lg opacity-90">{subheading}</p>}
         <Link
           href={ctaHref}

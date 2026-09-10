@@ -97,6 +97,10 @@ Each section has a `type` (component to render) and `props` (data passed to it).
 
 ### Available section types and their props
 
+**`eyebrow` (string, optional) is accepted by every type except `footer`** and is not repeated
+in the tables below. It renders as a small uppercase kicker above the section's heading.
+
+
 #### hero
 Full-viewport hero with headline, subheadline, and CTA button.
 
@@ -119,6 +123,7 @@ Company/founder story section with optional mission statement.
 | founderRole | string | no | Founder/owner title |
 | founderImage | string | no | Photo URL |
 | mission | string | no | Mission statement (renders in a highlighted card) |
+| pullQuote | string | no | A line lifted out of the story, set large against a rule |
 
 #### services
 Grid of service cards with icons.
@@ -132,7 +137,7 @@ Grid of service cards with icons.
 | services[].description | string | yes | Service description |
 | services[].icon | string | no | Lucide icon name (see list below) |
 
-**Available icons:** Palette, Code, BarChart3, Users, Globe, Shield, Zap, Heart, Star, Settings, MessageSquare, TrendingUp, Briefcase, Camera, PenTool, Layers, Monitor, Smartphone, Mail, DollarSign. Unrecognized names fall back to Sparkles.
+**Available icons:** Palette, Code, BarChart3, Users, Globe, Shield, Zap, Heart, Star, Settings, MessageSquare, TrendingUp, Briefcase, Camera, PenTool, Layers, Monitor, Smartphone, Mail, DollarSign, Award, BadgeCheck. Unrecognized names fall back to Sparkles — except in `credentials`, which falls back to BadgeCheck.
 
 #### portfolio
 Grid of project cards with images and optional tags.
@@ -173,10 +178,23 @@ Contact form with info sidebar.
 | address | string | no | Physical address |
 | showForm | boolean | no | Show contact form (default: true) |
 
-Form submits to `/api/contact`. Requires `RESEND_API_KEY` env var for email delivery (logs to console if unset).
+Form submits to `/api/contact`, which on a deployed site is the one dynamic route, handled by
+`src/worker.ts`. Requires `RESEND_API_KEY` for email delivery (logs to console if unset).
+
+Spam protection is **not a spec field**. If `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is set at BUILD,
+the form renders a Cloudflare Turnstile widget and sends its token; if it is not, the form
+behaves exactly as it did before Turnstile existed. The site key is created during per-client
+zone setup, long after a spec is written and approved, so it is deliberately kept out of
+`SiteSpec` — see `src/components/ui/turnstile.tsx`.
 
 #### footer
-Full footer section. Note: the site layout already renders a footer from `clientConfig`. Including a `footer` section in a page would render an additional footer inline — typically not needed.
+Full footer section. **The site layout already renders a footer from `clientConfig` on every
+route**, so including a `footer` section in a page renders a *second* one inline. This is a
+defect, not a preference: QA's check 8 blocks any page with more than one `<footer>` (or
+`<header>`) landmark. The archetype skeletons in `src/lib/analysis/structure.ts` listed
+`footer` until 2026-09-06, which is why every site generated before then shipped two stacked
+footers. The type stays in the palette for the rare page that genuinely needs an inline
+footer and no layout one; it is not part of any default order.
 
 | Prop | Type | Required | Description |
 |---|---|---|---|
@@ -219,6 +237,82 @@ Horizontal stats row with animated count-up.
 | stats[].label | string | yes | Stat label |
 
 Values with a leading number animate on scroll (count-up effect). Non-numeric values display statically.
+
+#### pricing
+Rates table. One to four tiers; the grid follows the tier count, so two tiers centre rather
+than leaving a gap in a three-up row.
+
+| Prop | Type | Required | Description |
+|---|---|---|---|
+| heading | string | yes | Section heading |
+| subheading | string | no | Supporting text below heading |
+| note | string | no | Fine print below the table (what the price excludes, billing terms) |
+| tiers | array | yes | Array of tier objects |
+| tiers[].name | string | yes | Tier name |
+| tiers[].price | string | yes | Price as written (`"$1,200"`, `"0.65%"`, `"Custom"`) |
+| tiers[].cadence | string | no | Unit beside the price (`"/mo"`, `"/yr"`, `"of assets"`) |
+| tiers[].description | string | no | One line on who the tier is for |
+| tiers[].includes | string[] | no | What the tier includes; renders as a checklist |
+| tiers[].ctaText | string | no | Button label — renders only alongside `ctaHref` |
+| tiers[].ctaHref | string | no | Button link target |
+| tiers[].featured | boolean | no | Rings the card in the primary colour |
+
+#### feature-list
+Differentiator list — two columns of icon, title and paragraph. Deliberately not a card grid:
+`services` owns that shape, and a differentiator is a claim to read rather than an item to scan.
+
+| Prop | Type | Required | Description |
+|---|---|---|---|
+| heading | string | yes | Section heading |
+| subheading | string | no | Supporting text below heading |
+| features | array | yes | Array of feature objects |
+| features[].title | string | yes | Feature title |
+| features[].description | string | yes | Supporting paragraph |
+| features[].icon | string | no | Lucide icon name from the shared `ICON_MAP`; unknown or absent falls back to `Sparkles` |
+
+#### credentials
+Third-party backing — licences, certifications, registrations, memberships, awards. Rendered as
+a bordered plate grid on a tinted band.
+
+Industry-neutral by construction: the shape is *a claim, who issued it, and how to check it*,
+which is the same shape for a CFP® mark, a state contractor licence, a Google Partner badge and
+a bar admission. Industry specificity belongs to archetypes and templates, never to a section
+type.
+
+| Prop | Type | Required | Description |
+|---|---|---|---|
+| heading | string | yes | Section heading |
+| subheading | string | no | Supporting text below heading |
+| note | string | no | Fine print below the grid (the "registration does not imply endorsement" line) |
+| credentials | array | yes | Array of credential objects |
+| credentials[].name | string | yes | The credential as it is properly written |
+| credentials[].issuer | string | no | Body that issued or maintains it |
+| credentials[].detail | string | no | Holder, registration number, or year held since |
+| credentials[].href | string | no | Public register or verification page; renders a "Verify" link, `target="_blank"` |
+| credentials[].logo | string | no | Issuer mark; replaces the icon when present |
+| credentials[].icon | string | no | Lucide icon name from the shared `ICON_MAP`; unknown or absent falls back to `BadgeCheck` |
+
+`href` is the field that earns the section. An unverifiable credential is just a claim, and the
+value here is that a visitor can click through to the issuer's own register. It stays optional
+because plenty of real credentials have no public lookup.
+
+#### disclosure
+Regulatory and legal disclosure text, with the linked documents that go with it.
+
+| Prop | Type | Required | Description |
+|---|---|---|---|
+| heading | string | no | Section heading (omit for an unheaded fine-print block) |
+| body | string | yes | Disclosure text (use `\n\n` between paragraphs) |
+| links | array | no | Array of `{ label, href }` — Form CRS, ADV Part 2A, privacy policy |
+| variant | string | no | "fineprint" (default) or "panel" |
+
+`fineprint` is the quiet full-width block above the footer, where most disclosures belong.
+`panel` is the bordered, full-size treatment for the load-bearing case — a "this is not
+investment advice" line directly under a pricing table, where burying it defeats the purpose.
+
+**The generator never writes a disclosure.** Adequacy, currency and jurisdiction are the
+client's counsel's business; `body` carries text the client supplied, verbatim. The schema
+checks shape and nothing else.
 
 ## seo (required)
 
@@ -266,9 +360,35 @@ These are suggestions, not requirements. Any combination of sections on any page
 The Zod schema enforces:
 1. At least one page must have slug `"/"`
 2. Each page must have at least one section
-3. Section type must be one of the 10 valid types
+3. Section type must be one of the 14 valid types
 4. `client.email` must be a valid email format
-5. All required fields must be present and non-empty
+5. **Every required prop is present, every prop has the right type, and no unrecognised prop
+   is accepted** — `sectionSchema` is a discriminated union on `type`, so each section is
+   checked against its own component's prop schema in `section-props.ts`
+
+Rule 5 previously read "all required fields must be present and non-empty" and was false in
+both halves. `props` was `z.record(z.string(), z.unknown())`, so section props were entirely
+unchecked: a `hero` with `{}` and a typo'd `headliine` both parsed clean and failed at
+`next build` — downstream of the REVIEW gate, after a human had approved a spec that could
+not build.
+
+**"Non-empty" is still not enforced, and deliberately so.** The schema constrains *shape*,
+never *content*: no min-lengths, no content enums, nothing that tells the generator what to
+write. Empty and placeholder copy is caught by the copy rules at ANALYSIS, not here.
+
+`section-props.ts` is hand-written beside the components rather than derived from them, so
+`section-props.conformance.ts` asserts at compile time that each schema is structurally
+identical to its component's exported interface. Adding a prop to a component without adding
+it to the schema is a `tsc` error, not a build failure three stages later.
+
+## Where a spec comes from
+
+A hand-written spec is one path in; the other is `src/lib/analysis/` — token extraction,
+archetype/structure selection, model-driven copy generation, and the deterministic rail,
+copy-floor and validation pass that produces `spec.json`. Every run writes a provenance
+folder at `Business/clients/<slug>/analysis/<ISO-timestamp>/` (`prompt.md`, `input.json`,
+`structure.json`, `tokens.json`, `run.json`, `spec.json`, `linter-report.json`, `flags.md`).
+No content rules live here — see `Business/tasteled/tickets/008-analysis-runtime-mechanism.md`.
 
 ## Usage
 

@@ -8,6 +8,10 @@ import { FAQSection } from "@/components/sections/faq";
 import { ContactSection } from "@/components/sections/contact";
 import { CTABandSection } from "@/components/sections/cta-band";
 import { FooterSection } from "@/components/sections/footer";
+import { PricingSection } from "@/components/sections/pricing";
+import { FeatureListSection } from "@/components/sections/feature-list";
+import { CredentialsSection } from "@/components/sections/credentials";
+import { DisclosureSection } from "@/components/sections/disclosure";
 
 export const metadata = {
   title: "Section Showcase",
@@ -74,6 +78,38 @@ export default function ShowcasePage() {
         ]}
       />
 
+      <FeatureListSection
+        eyebrow="Why Acme"
+        heading="What Working With Us Is Actually Like"
+        subheading="The differences that show up in month three, not in the pitch."
+        features={[
+          {
+            title: "One team, start to finish",
+            description:
+              "The designer who drew your site is the developer who builds it and the person who answers your email afterwards.",
+            icon: "Users",
+          },
+          {
+            title: "Fixed scope, fixed price",
+            description:
+              "Everything is quoted before work starts. If the scope changes, you approve the change and its price before anyone opens an editor.",
+            icon: "DollarSign",
+          },
+          {
+            title: "Built to be handed over",
+            description:
+              "You own the domain, the accounts and the code. Nothing about leaving us is designed to be difficult.",
+            icon: "Layers",
+          },
+          {
+            title: "Speed as a design constraint",
+            description:
+              "Performance budgets are set at the wireframe stage rather than audited after launch, when fixing them means redrawing the page.",
+            icon: "Zap",
+          },
+        ]}
+      />
+
       <StatsSection
         heading="By the Numbers"
         stats={[
@@ -112,6 +148,47 @@ export default function ShowcasePage() {
         ]}
       />
 
+      <PricingSection
+        eyebrow="Pricing"
+        heading="What It Costs"
+        subheading="Three ways to work together. Every one is quoted before work starts."
+        note="Prices exclude domain registration and third-party licences, which you buy and own directly."
+        tiers={[
+          {
+            name: "Landing Page",
+            price: "$1,200",
+            description: "One page, built to convert a single audience.",
+            includes: ["Single responsive page", "Copy polish", "Contact form", "Two revision rounds"],
+            ctaText: "Get started",
+            ctaHref: "#contact",
+          },
+          {
+            name: "Business Site",
+            price: "$3,500",
+            description: "The full small-business site, start to finish.",
+            includes: [
+              "Up to six pages",
+              "Brand-matched design system",
+              "SEO setup and analytics",
+              "Content migration",
+              "Two revision rounds",
+            ],
+            ctaText: "Book a call",
+            ctaHref: "#contact",
+            featured: true,
+          },
+          {
+            name: "Care Plan",
+            price: "$150",
+            cadence: "/mo",
+            description: "Hosting, monitoring and small changes after launch.",
+            includes: ["Managed hosting", "Uptime monitoring", "Monthly content updates", "Priority email support"],
+            ctaText: "Talk to us",
+            ctaHref: "#contact",
+          },
+        ]}
+      />
+
       <TestimonialsSection
         heading="What Clients Say"
         testimonials={[
@@ -137,6 +214,35 @@ export default function ShowcasePage() {
             role: "Studio Manager",
             company: "Apex Fitness Studio",
             avatar: "https://placehold.co/100x100/e2e8f0/1a1a2e?text=PA",
+          },
+        ]}
+      />
+
+      <CredentialsSection
+        eyebrow="Verify us"
+        heading="Credentials You Can Check"
+        subheading="Each of these is on a public register. The links go to the register, not to a page we wrote."
+        note="Listing on any directory or partner programme does not imply endorsement by that organisation."
+        credentials={[
+          {
+            name: "Google Partner",
+            issuer: "Google",
+            detail: "Agency ID 000-000-0000 · renewed 2026",
+            href: "https://www.google.com/partners/",
+            icon: "BadgeCheck",
+          },
+          {
+            name: "Registered Business Entity",
+            issuer: "California Secretary of State",
+            detail: "Entity #C0000000 · in good standing",
+            href: "https://bizfileonline.sos.ca.gov/search/business",
+            icon: "Shield",
+          },
+          {
+            name: "Best Small Web Studio, 2025",
+            issuer: "Bay Area Design Awards",
+            detail: "Category: small business websites",
+            icon: "Award",
           },
         ]}
       />
@@ -187,6 +293,16 @@ export default function ShowcasePage() {
         ctaText="Book a Call"
         ctaHref="#contact"
         variant="accent"
+      />
+
+      <DisclosureSection
+        heading="Terms and disclosures"
+        body={`Acme Design Studio LLC is a design and development studio. Nothing on this page is a binding offer; all engagements are governed by a signed statement of work.\n\nProject timelines quoted here are typical rather than guaranteed and depend on the client supplying content and feedback. Figures shown in the case studies above describe past engagements and are not a prediction of results.\n\nClients own their domain, hosting accounts and delivered source code. Third-party licences — fonts, stock imagery, plugins — are purchased in the client's name and remain the client's property.`}
+        links={[
+          { label: "Terms of Service", href: "#" },
+          { label: "Privacy Policy", href: "#" },
+          { label: "Accessibility Statement", href: "#" },
+        ]}
       />
 
       <FooterSection

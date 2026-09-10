@@ -47,17 +47,30 @@
   --accent-l: 55%;
   --radius: 0.5rem;
 
-  /* Computed colors from token primitives */
+  /* Derived foreground polarity — injected by layout.tsx from src/lib/theme/derive.ts.
+     The values here are that module's output for the primitives above, so the
+     un-assembled template renders the same way an assembled one does. */
+  --primary-fg-s: 70%;
+  --primary-fg-l: 98%;
+  --secondary-fg-s: 30%;
+  --secondary-fg-l: 12%;
+  --accent-fg-s: 30%;
+  --accent-fg-l: 12%;
+
+  /* Computed colors from token primitives.
+     Derivation of record: src/lib/theme/derive.ts. The foreground polarity is a variable,
+     not a constant, because a fixed polarity is only right for one end of a surface's
+     lightness range — always-light left 63% of the colour space below AA, always-dark 54%. */
   --background: hsl(var(--primary-h) 10% 98%);
   --foreground: hsl(var(--primary-h) 10% 10%);
   --primary: hsl(var(--primary-h) var(--primary-s) var(--primary-l));
-  --primary-foreground: hsl(var(--primary-h) var(--primary-s) 98%);
+  --primary-foreground: hsl(var(--primary-h) var(--primary-fg-s) var(--primary-fg-l));
   --secondary: hsl(var(--secondary-h) var(--secondary-s) var(--secondary-l));
-  --secondary-foreground: hsl(var(--secondary-h) var(--secondary-s) 98%);
+  --secondary-foreground: hsl(var(--secondary-h) var(--secondary-fg-s) var(--secondary-fg-l));
   --accent: hsl(var(--accent-h) var(--accent-s) var(--accent-l));
-  --accent-foreground: hsl(var(--accent-h) var(--accent-s) 15%);
+  --accent-foreground: hsl(var(--accent-h) var(--accent-fg-s) var(--accent-fg-l));
   --muted: hsl(var(--primary-h) 10% 94%);
-  --muted-foreground: hsl(var(--primary-h) 10% 45%);
+  --muted-foreground: hsl(var(--primary-h) 10% 39%);
   --card: hsl(var(--primary-h) 10% 100%);
   --card-foreground: hsl(var(--primary-h) 10% 10%);
   --popover: hsl(var(--primary-h) 10% 100%);
@@ -79,4 +92,76 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading-family);
   }
+}
+
+/*
+  Rich text — `about.story` and `faq.items[].answer`.
+
+  Tailwind utilities cannot reach inside `dangerouslySetInnerHTML`, so the element styling
+  lives here rather than on the markup. Deliberately small: this is the visual half of the
+  `lib/rich-text.ts` allowlist, and the two must stay the same set — a tag the sanitiser
+  permits and this file has no rule for renders as a browser default in the middle of a
+  designed page, which is how a client's paragraph ends up in Times New Roman.
+
+  Spacing is expressed with `margin` on adjacent siblings rather than a wrapper `space-y`,
+  because the wrapper's children are produced at runtime.
+*/
+.rich-text > * + * {
+  margin-top: 1rem;
+}
+.rich-text strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+.rich-text em {
+  font-style: italic;
+}
+.rich-text s {
+  text-decoration-line: line-through;
+}
+.rich-text a {
+  color: var(--primary);
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
+}
+.rich-text h3,
+.rich-text h4 {
+  font-family: var(--font-heading-family);
+  font-weight: 600;
+  color: var(--foreground);
+  margin-top: 1.75rem;
+}
+.rich-text h3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+.rich-text h4 {
+  font-size: 1.0625rem;
+  line-height: 1.45;
+}
+.rich-text ul,
+.rich-text ol {
+  padding-left: 1.5rem;
+}
+.rich-text ul {
+  list-style-type: disc;
+}
+.rich-text ol {
+  list-style-type: decimal;
+}
+.rich-text li + li {
+  margin-top: 0.375rem;
+}
+.rich-text blockquote {
+  border-left: 2px solid var(--primary);
+  padding-left: 1.25rem;
+  font-style: italic;
+  color: var(--foreground);
+}
+.rich-text code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+  background: var(--muted);
+  border-radius: calc(var(--radius) * 0.5);
+  padding: 0.1em 0.35em;
 }

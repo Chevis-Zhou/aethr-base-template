@@ -1,0 +1,329 @@
+{
+  "client": {
+    "name": "Maxematics",
+    "tagline": "One-on-one tutoring across math, science, language and test prep.",
+    "description": "One-on-one tutoring in math, science, language and test prep, in Tampa or over video.",
+    "email": "maxematics@icloud.com",
+    "phone": "813.444.6199",
+    "address": "Tampa, FL — virtual or in person",
+    "social": {}
+  },
+  "tokens": {
+    "primaryHue": "218",
+    "primarySaturation": "24%",
+    "primaryLightness": "27%",
+    "secondaryHue": "216",
+    "secondarySaturation": "18%",
+    "secondaryLightness": "34%",
+    "accentHue": "262",
+    "accentSaturation": "83%",
+    "accentLightness": "58%",
+    "fontHeading": "Inter",
+    "fontBody": "Inter",
+    "radius": "0.5rem"
+  },
+  "pages": [
+    {
+      "slug": "/",
+      "title": "Maxematics: One-on-One Tutoring in Tampa, FL",
+      "description": "Max Schwarzkopf tutors math, science, language and test prep in Tampa and over video. Every program is written for one student.",
+      "sections": [
+        {
+          "type": "hero",
+          "props": {
+            "eyebrow": "One-on-One Tutoring",
+            "headline": "Tutoring built around one student at a time.",
+            "subheadline": "",
+            "ctaText": "Start the conversation",
+            "ctaHref": "#contact"
+          }
+        },
+        {
+          "type": "feature-list",
+          "props": {
+            "eyebrow": "Why Maxematics",
+            "heading": "What Tutoring With Max Includes",
+            "features": [
+              {
+                "title": "Every program tailored to the student",
+                "description": "Sessions start from where the student actually is, and the plan changes as they do."
+              },
+              {
+                "title": "Custom worksheets & practice exams",
+                "description": "Practice material is written for the topic at hand, rather than pulled from a generic packet."
+              },
+              {
+                "title": "Virtual, or in a Tampa learning space",
+                "description": "Meet online from anywhere, or in person at a quiet space in Tampa."
+              },
+              {
+                "title": "Study & time management skills",
+                "description": "Alongside the subject itself, students work on how to plan, revise and sit an exam."
+              },
+              {
+                "title": "Summer refreshers & final exam prep",
+                "description": "Focused runs before finals, and lighter sessions over the summer to keep the material warm."
+              },
+              {
+                "title": "SAT, ACT & Desmos support",
+                "description": "Section strategy, timing, and the Desmos calculator practised until it stops costing time."
+              }
+            ]
+          }
+        },
+        {
+          "type": "about",
+          "props": {
+            "eyebrow": "Meet Max",
+            "heading": "The Tutor Behind Maxematics",
+            "story": "",
+            "founderName": "Max Schwarzkopf",
+            "founderRole": "Founder & tutor; STEM student and researcher",
+            "pullQuote": "If you think of something as ‘hard,’ it will be. But it doesn’t have to be that way."
+          }
+        },
+        {
+          "type": "services",
+          "props": {
+            "eyebrow": "Topics",
+            "heading": "",
+            "subheading": "Math and science sit alongside language, writing and history. Test preparation runs through all of it.",
+            "services": [
+              {
+                "title": "Algebra 1 & 2",
+                "description": "Equations, functions and graphing, worked until the steps stop feeling like guesswork."
+              },
+              {
+                "title": "Precalculus",
+                "description": "Trigonometry, sequences and the groundwork that Calculus takes for granted."
+              },
+              {
+                "title": "Calculus 1 & 2",
+                "description": "Limits, derivatives and integrals, with time spent on why each one is the right tool."
+              },
+              {
+                "title": "Geometry",
+                "description": "Proofs, angles and coordinate work, built up from the definitions."
+              },
+              {
+                "title": "Statistics",
+                "description": "Distributions, inference, and reading a result without over-claiming it."
+              },
+              {
+                "title": "SAT/ACT/Desmos",
+                "description": "Section strategy, pacing, and using the Desmos calculator well under time pressure."
+              },
+              {
+                "title": "Chemistry",
+                "description": "Stoichiometry, bonding and reactions, one mechanism at a time."
+              },
+              {
+                "title": "Biology",
+                "description": "Systems, genetics and the vocabulary, organised so it holds through an exam."
+              },
+              {
+                "title": "Physics",
+                "description": "Mechanics, energy and waves, starting from the diagram rather than the formula."
+              },
+              {
+                "title": "Latin 1 & 2",
+                "description": "Declensions, syntax and translation practice at a steady, repeatable pace."
+              },
+              {
+                "title": "Creative & Technical Writing",
+                "description": "Structure first, then sentences. Essays, lab reports and personal statements all get the same treatment."
+              },
+              {
+                "title": "World & US History",
+                "description": ""
+              }
+            ]
+          }
+        },
+        {
+          "type": "stats",
+          "props": {
+            "eyebrow": "By the Numbers",
+            "heading": "",
+            "stats": [
+              {
+                "value": "12",
+                "label": "Topics"
+              },
+              {
+                "value": "10+",
+                "label": "Weekly students"
+              },
+              {
+                "value": "2022",
+                "label": "Tutoring since"
+              },
+              {
+                "value": "1:1",
+                "label": "Every session"
+              }
+            ]
+          }
+        },
+        {
+          "type": "credentials",
+          "props": {
+            "eyebrow": "Credentials",
+            "heading": "Recognition, Research and Affiliations",
+            "subheading": "Awards, certifications, and the labs and organisations Max works with outside of tutoring.",
+            "credentials": [
+              {
+                "name": "Autodesk CAD certification"
+              },
+              {
+                "name": "Cum Laude Society induction"
+              },
+              {
+                "name": "Anne Frank Humanitarian Award"
+              },
+              {
+                "name": "Reddy Lab, Engineering/Research Assistant, USF Morsani College of Medicine"
+              },
+              {
+                "name": "Best Overall Research — HC STEM Fair"
+              },
+              {
+                "name": "HOBY Youth Leadership Ambassador"
+              },
+              {
+                "name": "Nonprofit tutoring affiliation (Prep & Me)"
+              }
+            ]
+          }
+        },
+        {
+          "type": "testimonials",
+          "props": {
+            "eyebrow": "In Their Words",
+            "heading": "What Students, Families and Partners Say",
+            "testimonials": [
+              {
+                "quote": "Max is an exceptional tutor… one of the best!",
+                "author": "Lakshmi Jayaram, Ph.D.",
+                "role": "Executive Director, Prep & Me"
+              },
+              {
+                "quote": "He knows all the math and helped me figure out things I was otherwise guessing at…",
+                "author": "Eva T.",
+                "role": "SAT / ACT Prep"
+              },
+              {
+                "quote": "Since starting with Max I haven’t gotten less than a 90% on any assignment…",
+                "author": "Ker’Varis M.",
+                "role": "Geometry"
+              }
+            ]
+          }
+        },
+        {
+          "type": "pricing",
+          "props": {
+            "eyebrow": "Rates",
+            "heading": "Straightforward Session Pricing",
+            "subheading": "Every session is one to one, and priced by its length.",
+            "note": "Zelle, check, or cash accepted.",
+            "tiers": [
+              {
+                "name": "30 minutes",
+                "price": "$25",
+                "cadence": "per session"
+              },
+              {
+                "name": "60 minutes",
+                "price": "$40",
+                "cadence": "per session"
+              },
+              {
+                "name": "90 minutes",
+                "price": "$60",
+                "cadence": "per session"
+              }
+            ]
+          }
+        },
+        {
+          "type": "faq",
+          "props": {
+            "eyebrow": "",
+            "heading": "Common Questions",
+            "items": [
+              {
+                "question": "Are sessions virtual or in person?",
+                "answer": "Either. Sessions run online from anywhere, or in person at a learning space in Tampa, FL."
+              },
+              {
+                "question": "How is payment handled?",
+                "answer": "Zelle, check and cash are all accepted. Payment is arranged directly with Max."
+              },
+              {
+                "question": "How does a student get started?",
+                "answer": "Send a note through the form below or by email. A line or two about the student, the subject and the goal is enough to begin with."
+              }
+            ]
+          }
+        },
+        {
+          "type": "cta-band",
+          "props": {
+            "eyebrow": "Next Step",
+            "heading": "Ready to talk about a plan for your student?",
+            "subheading": "Say a little about the subject and where things are getting stuck, and Max will take it from there.",
+            "ctaText": "Start the conversation",
+            "ctaHref": "#contact",
+            "variant": "accent"
+          }
+        },
+        {
+          "type": "contact",
+          "props": {
+            "eyebrow": "Contact",
+            "heading": "Send Max a Note",
+            "subheading": "Tutoring enquiries, scheduling and questions about rates all reach the same inbox. A little detail about the student and the goal helps make the first reply a useful one.",
+            "email": "maxematics@icloud.com",
+            "phone": "813.444.6199",
+            "address": "Tampa, FL — virtual or in person",
+            "showForm": true
+          }
+        }
+      ]
+    }
+  ],
+  "seo": {
+    "siteName": "Maxematics",
+    "keywords": [
+      "tutoring Tampa FL",
+      "one-on-one tutoring",
+      "math tutor Tampa",
+      "calculus tutor",
+      "SAT prep",
+      "ACT prep",
+      "Desmos support",
+      "chemistry tutor",
+      "Latin tutor",
+      "test prep Tampa"
+    ]
+  },
+  "nav": [
+    {
+      "label": "About",
+      "href": "#about"
+    },
+    {
+      "label": "Topics",
+      "href": "#services"
+    },
+    {
+      "label": "Rates",
+      "href": "#pricing"
+    },
+    {
+      "label": "Contact",
+      "href": "#contact"
+    }
+  ]
+}

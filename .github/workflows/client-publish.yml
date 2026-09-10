@@ -1,0 +1,91 @@
+# The shared cloud builder — ticket 012 §3.
+#
+# One workflow builds every client. It takes a slug, not a repo: the source of a client
+# site is this template plus that client's spec.json, so ticket 010 §4's "no per-client
+# repo at v1" holds unchanged and forty repos remains the thing that was ruled against.
+#
+# Triggered by the portal when a client presses Publish in the self-edit tool, and by hand
+# for a re-publish. The build takes minutes, which is the number the editor says out loud;
+# the instant thing is the preview, not this.
+#
+# Secrets this needs on the repo:
+#   PORTAL_BUILD_SECRET      — bearer the runner presents to /api/edit/build (both ways)
+#   CLOUDFLARE_API_TOKEN     — Workers Scripts Write on the AethrDesign account
+#   CLOUDFLARE_ACCOUNT_ID    — cabe3805e8fcaaa3462e442146e18814
+#   RESEND_API_KEY           — not used here; the contact Worker's secret is already set
+#
+# NOTE on the token: `deploy.ts` on the Mac deliberately strips CLOUDFLARE_API_TOKEN and
+# uses OAuth, because attaching a *Custom Domain* fails auth 10000 with the zone token
+# after a successful asset upload. This workflow re-publishes a Worker whose custom domains
+# are already attached, which is a plain script upload and the token handles it. A
+# first-time attach still runs from the Mac.
+
+name: Publish a client site
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: Client slug (also the Worker name, site-<slug>)
+        required: true
+        type: string
+      stage:
+        description: staging (preview hostname) or production (client apex)
+        required: true
+        default: staging
+        type: choice
+        options: [staging, production]
+      publish_id:
+        description: The portal's publish row id — the runner reports back against it
+        required: true
+        type: string
+      portal_base:
+        description: Portal origin to fetch the spec from
+        required: false
+        default: https://portal.aethrdesign.com
+        type: string
+
+concurrency:
+  # One publish per client at a time. §2.2 lets the client keep editing during a publish
+  # and rules that the next one supersedes — this is where that supersede happens.
+  group: client-publish-${{ inputs.slug }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The Linux half of the image pipeline — the three binaries ImageOptim wraps.
+      # qa-specification.md §7 makes manifest coverage blocking, and this is what lets a
+      # client's own upload clear it without a Mac in the loop.
+      - name: Install the lossless image tools
+        run: sudo apt-get update && sudo apt-get install -y oxipng libjpeg-turbo-progs zopfli
+
+      - name: Install Chromium for the fast gate
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build, gate and deploy
+        env:
+          PORTAL_BUILD_SECRET: ${{ secrets.PORTAL_BUILD_SECRET }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx tsx scripts/publish-client.ts \
+            --slug "${{ inputs.slug }}" \
+            --stage "${{ inputs.stage }}" \
+            --publish-id "${{ inputs.publish_id }}" \
+            --portal-base "${{ inputs.portal_base }}"

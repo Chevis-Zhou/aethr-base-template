@@ -1,10 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Quote } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 export interface TestimonialsProps {
+  eyebrow?: string;
   heading: string;
   testimonials: {
     quote: string;
@@ -15,13 +16,20 @@ export interface TestimonialsProps {
   }[];
 }
 
-export function TestimonialsSection({ heading, testimonials }: TestimonialsProps) {
+export function TestimonialsSection({ eyebrow, heading, testimonials }: TestimonialsProps) {
   return (
     <section className="bg-muted py-16 md:py-24">
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <h2 className="text-center font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          {heading}
-        </h2>
+        {eyebrow && (
+          <p className="mb-3 text-center text-sm font-semibold tracking-wide text-primary uppercase">
+            {eyebrow}
+          </p>
+        )}
+        {heading && (
+          <h2 className="text-center font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            {heading}
+          </h2>
+        )}
 
         <div className="mt-12 space-y-8">
           {testimonials.map((testimonial, i) => {

@@ -1,0 +1,374 @@
+{
+  "client": {
+    "name": "Meridian Partners",
+    "tagline": "Independent financial advice for people who ask hard questions",
+    "description": "Meridian Partners is a fee-only advisory practice serving founders and senior operators.",
+    "email": "hello@meridianpartners.example",
+    "phone": "(202) 555-0147",
+    "address": "1100 Vermont Ave NW, Suite 700, Washington, DC 20005",
+    "bookingUrl": "https://cal.com/meridian/intro",
+    "social": {
+      "linkedin": "https://linkedin.com/company/meridian-partners"
+    }
+  },
+  "tokens": {
+    "primaryHue": "222",
+    "primarySaturation": "47%",
+    "primaryLightness": "32%",
+    "secondaryHue": "215",
+    "secondarySaturation": "16%",
+    "secondaryLightness": "47%",
+    "accentHue": "38",
+    "accentSaturation": "84%",
+    "accentLightness": "52%",
+    "fontHeading": "Fraunces",
+    "fontBody": "Inter",
+    "radius": "0.5rem"
+  },
+  "seo": {
+    "siteName": "Meridian Partners",
+    "keywords": [
+      "fee-only advisor",
+      "founder financial planning",
+      "equity compensation"
+    ]
+  },
+  "pages": [
+    {
+      "slug": "/",
+      "title": "Meridian Partners \u2014 Fee-Only Advice for Founders and Operators",
+      "description": "Fee-only financial advice for founders and senior operators. Equity compensation, liquidity planning, and tax strategy.",
+      "sections": [
+        {
+          "type": "hero",
+          "props": {
+            "eyebrow": "Fee-only, fiduciary, independent",
+            "headline": "Advice You Can Audit",
+            "subheadline": "We plan around equity, liquidity and tax for people whose compensation does not fit a standard spreadsheet.",
+            "ctaText": "Book an intro call",
+            "ctaHref": "/contact"
+          }
+        },
+        {
+          "type": "stats",
+          "props": {
+            "eyebrow": "The practice",
+            "stats": [
+              {
+                "value": "$310",
+                "label": "M advised"
+              },
+              {
+                "value": "60",
+                "label": "Households"
+              },
+              {
+                "value": "0",
+                "label": "Commissions taken"
+              },
+              {
+                "value": "14",
+                "label": "Years in practice"
+              }
+            ]
+          }
+        },
+        {
+          "type": "about",
+          "props": {
+            "eyebrow": "Who you work with",
+            "heading": "One Advisor, Not a Call Centre",
+            "story": "Meridian was founded after a decade inside two large wirehouses, where the advice a client received depended on what the firm was selling that quarter.\n\nThe practice is deliberately capped at sixty households. That number is the whole business model: it is the largest book one person can hold while still knowing every client's situation from memory.",
+            "founderName": "Dana Whitfield, CFP\u00ae",
+            "founderRole": "Founder and Principal Advisor",
+            "mission": "Advice whose incentives a client can verify in ten minutes.",
+            "pullQuote": "If you cannot explain how your advisor is paid, you do not know what you are buying."
+          }
+        },
+        {
+          "type": "credentials",
+          "props": {
+            "eyebrow": "Verify us",
+            "heading": "Credentials You Can Check",
+            "subheading": "Every one of these is on a public register. The links go to the register, not to a page we wrote.",
+            "note": "Registration with any authority does not imply a certain level of skill or training, and is not an endorsement by that authority.",
+            "credentials": [
+              {
+                "name": "CERTIFIED FINANCIAL PLANNER\u2122",
+                "issuer": "CFP Board",
+                "detail": "Dana Whitfield \u00b7 held since 2014",
+                "href": "https://www.cfp.net/verify-a-cfp-professional",
+                "icon": "BadgeCheck"
+              },
+              {
+                "name": "Registered Investment Adviser",
+                "issuer": "U.S. Securities and Exchange Commission",
+                "detail": "CRD #000000 \u00b7 Form ADV filed annually",
+                "href": "https://adviserinfo.sec.gov/",
+                "icon": "Shield"
+              },
+              {
+                "name": "NAPFA Member",
+                "issuer": "National Association of Personal Financial Advisors",
+                "detail": "Fee-only membership, renewed 2026",
+                "href": "https://www.napfa.org/find-an-advisor",
+                "icon": "Award"
+              }
+            ]
+          }
+        },
+        {
+          "type": "feature-list",
+          "props": {
+            "eyebrow": "Why Meridian",
+            "heading": "What Working Here Is Actually Like",
+            "subheading": "The differences that show up in year two, not in the pitch deck.",
+            "features": [
+              {
+                "title": "Capped at sixty households",
+                "description": "The book is closed at sixty by design, so the advisor who wrote your plan is the one who answers the phone.",
+                "icon": "Users"
+              },
+              {
+                "title": "Fee-only, disclosed in writing",
+                "description": "No commissions, no revenue sharing, no proprietary products. The fee schedule is on the engagement letter and nowhere else.",
+                "icon": "Shield"
+              },
+              {
+                "title": "Equity comp as the default case",
+                "description": "ISOs, RSUs, QSBS and secondary sales are the normal work here rather than an exception handled by a specialist elsewhere.",
+                "icon": "TrendingUp"
+              },
+              {
+                "title": "Plans you can re-run",
+                "description": "Every projection ships with its assumptions written down, so you can test what happens when one of them turns out wrong.",
+                "icon": "BarChart3"
+              }
+            ]
+          }
+        },
+        {
+          "type": "services",
+          "props": {
+            "eyebrow": "Engagements",
+            "heading": "How We Help",
+            "subheading": "Three ways to work together, all fee-only.",
+            "services": [
+              {
+                "title": "Equity Compensation Planning",
+                "description": "Exercise timing, AMT exposure, 83(b) decisions and concentration risk, modelled against your actual vesting schedule.",
+                "icon": "TrendingUp"
+              },
+              {
+                "title": "Liquidity Event Preparation",
+                "description": "Pre-transaction planning for tender offers, secondaries and acquisitions, including QSBS qualification review.",
+                "icon": "DollarSign"
+              },
+              {
+                "title": "Ongoing Wealth Management",
+                "description": "Portfolio construction, tax-loss harvesting and annual planning reviews for households past their first liquidity event.",
+                "icon": "Briefcase"
+              }
+            ]
+          }
+        },
+        {
+          "type": "pricing",
+          "props": {
+            "eyebrow": "Fees",
+            "heading": "What It Costs",
+            "subheading": "Flat fees, agreed before any work starts.",
+            "note": "Fees are billed quarterly in arrears and are not deducted from managed assets.",
+            "tiers": [
+              {
+                "name": "Project",
+                "price": "$4,500",
+                "description": "A single decision, planned end to end.",
+                "includes": [
+                  "Two working sessions",
+                  "Written plan with assumptions",
+                  "Ninety days of follow-up"
+                ],
+                "ctaText": "Scope a project",
+                "ctaHref": "/contact"
+              },
+              {
+                "name": "Planning Retainer",
+                "price": "$12,000",
+                "cadence": "/yr",
+                "description": "Continuous planning without asset management.",
+                "includes": [
+                  "Quarterly planning sessions",
+                  "Unlimited questions between sessions",
+                  "Annual tax-strategy review",
+                  "Coordination with your CPA and attorney"
+                ],
+                "ctaText": "Book an intro call",
+                "ctaHref": "/contact",
+                "featured": true
+              },
+              {
+                "name": "Full Management",
+                "price": "0.65%",
+                "cadence": "of assets",
+                "description": "Planning retainer plus discretionary portfolio management.",
+                "includes": [
+                  "Everything in Planning Retainer",
+                  "Portfolio construction and rebalancing",
+                  "Tax-loss harvesting",
+                  "Estate and charitable coordination"
+                ],
+                "ctaText": "Talk to us",
+                "ctaHref": "/contact"
+              }
+            ]
+          }
+        },
+        {
+          "type": "portfolio",
+          "props": {
+            "eyebrow": "Case work",
+            "heading": "Recent Engagements",
+            "subheading": "Details changed, structures intact.",
+            "projects": [
+              {
+                "title": "Pre-IPO Exercise Window",
+                "description": "Modelled a staged ISO exercise across two tax years, cutting projected AMT by a mid-six-figure sum.",
+                "image": "https://images.example.com/case-ipo.jpg",
+                "tags": [
+                  "Equity comp",
+                  "Tax"
+                ]
+              },
+              {
+                "title": "Founder Secondary Sale",
+                "description": "Structured a partial secondary to preserve QSBS treatment on the remaining position.",
+                "image": "https://images.example.com/case-secondary.jpg",
+                "tags": [
+                  "Liquidity",
+                  "QSBS"
+                ]
+              },
+              {
+                "title": "Post-Acquisition Reset",
+                "description": "Rebuilt a concentrated single-stock portfolio into a diversified allocation over six quarters.",
+                "image": "https://images.example.com/case-reset.jpg",
+                "tags": [
+                  "Portfolio"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "type": "testimonials",
+          "props": {
+            "eyebrow": "In their words",
+            "heading": "What Clients Say",
+            "testimonials": [
+              {
+                "quote": "Dana talked me out of the exercise I came in asking for, and showed me the arithmetic. That conversation paid for a decade of fees.",
+                "author": "Priya N.",
+                "role": "Co-founder",
+                "company": "Series C SaaS"
+              },
+              {
+                "quote": "Every projection came with its assumptions written down. When one of them broke, we knew exactly which number to change.",
+                "author": "Marcus T.",
+                "role": "VP Engineering"
+              }
+            ]
+          }
+        },
+        {
+          "type": "faq",
+          "props": {
+            "eyebrow": "Before you call",
+            "heading": "Common Questions",
+            "subheading": "The ones that come up on nearly every intro call.",
+            "items": [
+              {
+                "question": "Do you take custody of my assets?",
+                "answer": "No. Assets are held at Schwab or Fidelity in your name. Meridian has trading authority on managed accounts and nothing more."
+              },
+              {
+                "question": "Is there an asset minimum?",
+                "answer": "Not for project work or the planning retainer. Full management starts at $1M, and the planning retainer exists so that number is never a barrier to advice."
+              },
+              {
+                "question": "How are you paid?",
+                "answer": "Flat fees or a stated percentage of managed assets, billed quarterly. Meridian receives no commissions, referral fees or revenue sharing from any product provider."
+              }
+            ]
+          }
+        },
+        {
+          "type": "cta-band",
+          "props": {
+            "eyebrow": "Next step",
+            "heading": "Start With a Conversation",
+            "subheading": "Thirty minutes, no cost, and no obligation to engage.",
+            "ctaText": "Book an intro call",
+            "ctaHref": "/contact",
+            "variant": "primary"
+          }
+        },
+        {
+          "type": "contact",
+          "props": {
+            "eyebrow": "Get in touch",
+            "heading": "Talk to Meridian",
+            "subheading": "Tell us what decision is in front of you and we will tell you whether we are the right help.",
+            "email": "hello@meridianpartners.example",
+            "phone": "(202) 555-0147",
+            "address": "1100 Vermont Ave NW, Suite 700, Washington, DC 20005",
+            "showForm": true
+          }
+        },
+        {
+          "type": "disclosure",
+          "props": {
+            "heading": "Important disclosures",
+            "body": "Meridian Partners LLC is an investment adviser registered with the U.S. Securities and Exchange Commission. Registration does not imply a certain level of skill or training.\n\nNothing on this site is an offer to buy or sell any security, or personalised investment, tax or legal advice. Figures shown are illustrative and describe past engagements with client details changed; past performance is not indicative of future results.\n\nMeridian receives no commissions, referral fees or revenue sharing from any product provider. The complete fee schedule appears in Form ADV Part 2A and in every engagement letter.",
+            "links": [
+              {
+                "label": "Form ADV Part 2A",
+                "href": "/disclosures/adv-part-2a"
+              },
+              {
+                "label": "Form CRS",
+                "href": "/disclosures/form-crs"
+              },
+              {
+                "label": "Privacy Policy",
+                "href": "/privacy"
+              }
+            ],
+            "variant": "fineprint"
+          }
+        },
+        {
+          "type": "footer",
+          "props": {
+            "companyName": "Meridian Partners",
+            "copyright": "\u00a9 2026 Meridian Partners LLC. Registered investment adviser.",
+            "tagline": "Fee-only financial advice for founders and senior operators.",
+            "navLinks": [
+              {
+                "label": "Home",
+                "href": "/"
+              },
+              {
+                "label": "Contact",
+                "href": "/contact"
+              }
+            ],
+            "socialLinks": {
+              "linkedin": "https://linkedin.com/company/meridian-partners"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

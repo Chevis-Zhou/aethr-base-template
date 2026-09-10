@@ -46,4 +46,20 @@ export const SECTION_REGISTRY: Record<SectionType, SectionMeta> = {
     importPath: "@/components/sections/stats",
     componentName: "StatsSection",
   },
+  pricing: {
+    importPath: "@/components/sections/pricing",
+    componentName: "PricingSection",
+  },
+  "feature-list": {
+    importPath: "@/components/sections/feature-list",
+    componentName: "FeatureListSection",
+  },
+  credentials: {
+    importPath: "@/components/sections/credentials",
+    componentName: "CredentialsSection",
+  },
+  disclosure: {
+    importPath: "@/components/sections/disclosure",
+    componentName: "DisclosureSection",
+  },
 };

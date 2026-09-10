@@ -1,31 +1,40 @@
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
+import { RichText } from "../ui/rich-text";
 
 export interface AboutProps {
+  eyebrow?: string;
   heading: string;
   story: string;
   founderName?: string;
   founderRole?: string;
   founderImage?: string;
   mission?: string;
+  pullQuote?: string;
 }
 
 export function AboutSection({
+  eyebrow,
   heading,
   story,
   founderName,
   founderRole,
   founderImage,
   mission,
+  pullQuote,
 }: AboutProps) {
-  const paragraphs = story.split("\n\n").filter(Boolean);
   const hasFounder = Boolean(founderName || founderRole || founderImage);
 
   return (
     <section className="py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          {heading}
-        </h2>
+        {eyebrow && (
+          <p className="mb-3 text-sm font-semibold tracking-wide text-primary uppercase">{eyebrow}</p>
+        )}
+        {heading && (
+          <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            {heading}
+          </h2>
+        )}
 
         <div className={cn("mt-10 grid gap-10", hasFounder && "lg:grid-cols-3 lg:gap-12")}>
           <div
@@ -34,9 +43,16 @@ export function AboutSection({
               hasFounder && "lg:col-span-2"
             )}
           >
-            {paragraphs.map((paragraph, i) => (
-              <p key={i}>{paragraph}</p>
-            ))}
+            {/* Was `story.split("\n\n").map(<p>)`. `RichText` still renders exactly that
+                for a plain-text story, so nothing was migrated — it also accepts the
+                markup the self-edit tool's rich-text control now writes. */}
+            <RichText value={story} />
+
+            {pullQuote && (
+              <blockquote className="mt-8 border-l-2 border-primary pl-6 font-heading text-xl font-medium text-balance text-foreground sm:text-2xl">
+                {pullQuote}
+              </blockquote>
+            )}
 
             {mission && (
               <div className="mt-8 rounded-2xl bg-muted p-6 sm:p-8">
