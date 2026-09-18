@@ -49,3 +49,7 @@ next-env.d.ts
 /qa-runs/
 /qa-verification/
 /.image-manifest.json
+
+# Private analysis layer (prompt, exemplars, generation) — its own private repo,
+# Chevis-Zhou/aethr-analysis, nested here. This repo is public. Ticket 032.
+src/lib/analysis/

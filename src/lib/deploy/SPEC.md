@@ -273,7 +273,7 @@ npx tsx src/lib/deploy/zone-setup.ts run --slug <slug> --domain <apex> --live   
    would silently delete any other rule already on that phase. Identified by its
    `description`, so re-running after it's applied is a no-op. One rule covers every client
    forever; the `-preview` suffix is what makes that possible. The free plan allows 10 active
-   Transform Rules per phase; this is one. **Applied live 2026-09-08** on zone `9f9c22655fa793dbac7221d9d6949839`; re-running reports
+   Transform Rules per phase; this is one. **Applied live 2026-09-08** on the `aethrdesign.com` zone; re-running reports
    `already applied — nothing to do`.
 
    **A second rule was appended 2026-09-09**, by hand rather than through this module, to

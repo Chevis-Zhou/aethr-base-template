@@ -11,7 +11,7 @@
 # Secrets this needs on the repo:
 #   PORTAL_BUILD_SECRET      — bearer the runner presents to /api/edit/build (both ways)
 #   CLOUDFLARE_API_TOKEN     — Workers Scripts Write on the AethrDesign account
-#   CLOUDFLARE_ACCOUNT_ID    — cabe3805e8fcaaa3462e442146e18814
+#   CLOUDFLARE_ACCOUNT_ID    — the AethrDesign account (dashboard → Account ID)
 #   RESEND_API_KEY           — not used here; the contact Worker's secret is already set
 #
 # NOTE on the token: `deploy.ts` on the Mac deliberately strips CLOUDFLARE_API_TOKEN and

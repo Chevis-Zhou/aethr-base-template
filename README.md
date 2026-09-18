@@ -34,3 +34,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Publication boundary
+
+This repository is public. The analysis layer (`src/lib/analysis/` — generation prompt, copy exemplars, spec generation) is private and lives in its own repo, `Chevis-Zhou/aethr-analysis`, checked out at that path locally and ignored here. Nothing tracked here imports it, so the site build and the client-publish workflow run without it. Do not commit client contact details, account or zone IDs, or anything from that layer into this repo.
