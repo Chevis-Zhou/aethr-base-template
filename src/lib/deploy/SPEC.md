@@ -14,21 +14,10 @@ live Cloudflare account and default to `--dry-run`; each needs `--live` plus
 unprefixed `CLOUDFLARE_API_TOKEN` in this repo's `.env` — wrangler auto-loads it and then
 fails Workers Routes list (auth 10000) *after* a successful asset upload.
 
-**Live status, 2026-09-08.** `transform-rule.ts apply --live` is on the zone.
-`deploy.ts staging` (no `--dry-run` — this CLI is live by default; there is no `--live`
-flag) has now run for real: Worker `site-replay-maxematics`, version
-`e612399d-d38a-401a-8747-f36e8831def9`, serving
-https://replay-maxematics-preview.aethrdesign.com (Maxematics v1 replay,
-`spec-approved.json` from `_replay-maxematics/analysis/2026-09-06T22-44-02.255Z`, artifact
-`0ad68a8cb53a`, 56 files / 2.00 MB). Live `GET /` is 200 with the replay headline;
-`X-Robots-Tag: noindex, nofollow` is on the response (the zone transform rule);
-`GET /api/contact` is 405 / `Allow: POST`. Drift guard re-exercised against that recorded
-manifest: `index.html` mutated, `showcase.html` deleted, `injected-after-approve.txt` added
-— `deploy` refused with those three names and never called wrangler. Manifest lives under
-the fixture vault-root
+**`deploy.ts` is live by default** — there is no `--live` flag; pass `--dry-run` to rehearse (the opposite default from `zone-setup.ts` and `transform-rule.ts`). The replay fixture's manifest lives under the fixture vault-root
 `Business/clients/_replay-maxematics/Business/clients/replay-maxematics/approved-artifact.json`
 so a `replay-maxematics` folder is not created next to real clients (underscore slug is
-illegal, and a bare `replay-maxematics/` would be scraped as a client).
+illegal, and a bare `replay-maxematics/` would be scraped as a client). The first live staging run and its drift-guard check (2026-09-08) are recorded in `docs/state-history.md`.
 
 **Live status, 2026-09-09 — `deploy.ts deploy` has now run live.** `deploy --domain
 replay-maxematics-live.aethrdesign.com` attached three Custom Domains to
