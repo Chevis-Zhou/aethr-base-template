@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { TurnstileWidget } from "../ui/turnstile";
+import { mark, type EditProps } from "../../lib/edit/markers";
 
 /**
  * Read at module scope so Next inlines it at BUILD into the static export. Empty on every
@@ -36,7 +37,8 @@ export function ContactSection({
   phone,
   address,
   showForm = true,
-}: ContactProps) {
+  edit,
+}: ContactProps & EditProps) {
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -100,10 +102,16 @@ export function ContactSection({
     }
   }
 
+  // `path` rides along so the canvas can address the three of them without this list
+  // being restated anywhere else — they are fields, not decoration.
   const contactItems = [
-    { icon: Mail, label: email, href: `mailto:${email}` },
-    ...(phone ? [{ icon: Phone, label: phone, href: `tel:${phone.replace(/[^+\d]/g, "")}` }] : []),
-    ...(address ? [{ icon: MapPin, label: address, href: undefined as string | undefined }] : []),
+    { icon: Mail, label: email, href: `mailto:${email}`, path: "email" },
+    ...(phone
+      ? [{ icon: Phone, label: phone, href: `tel:${phone.replace(/[^+\d]/g, "")}`, path: "phone" }]
+      : []),
+    ...(address
+      ? [{ icon: MapPin, label: address, href: undefined as string | undefined, path: "address" }]
+      : []),
   ];
 
   return (
@@ -112,14 +120,26 @@ export function ContactSection({
         <div className={cn("grid gap-12", showForm && "lg:grid-cols-2 lg:gap-16")}>
           <div>
             {eyebrow && (
-              <p className="mb-3 text-sm font-semibold tracking-wide text-primary uppercase">{eyebrow}</p>
+              <p
+                className="mb-3 text-sm font-semibold tracking-wide text-primary uppercase"
+                {...mark(edit, "eyebrow")}
+              >
+                {eyebrow}
+              </p>
             )}
             {heading && (
-              <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              <h2
+                className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+                {...mark(edit, "heading")}
+              >
                 {heading}
               </h2>
             )}
-            {subheading && <p className="mt-4 text-lg text-muted-foreground">{subheading}</p>}
+            {subheading && (
+              <p className="mt-4 text-lg text-muted-foreground" {...mark(edit, "subheading", "textarea")}>
+                {subheading}
+              </p>
+            )}
 
             <ul className="mt-8 space-y-4">
               {contactItems.map((item) => (
@@ -128,11 +148,15 @@ export function ContactSection({
                     <item.icon className="h-5 w-5" />
                   </span>
                   {item.href ? (
-                    <a href={item.href} className="transition-colors hover:text-primary">
+                    <a
+                      href={item.href}
+                      className="transition-colors hover:text-primary"
+                      {...mark(edit, item.path)}
+                    >
                       {item.label}
                     </a>
                   ) : (
-                    <span>{item.label}</span>
+                    <span {...mark(edit, item.path)}>{item.label}</span>
                   )}
                 </li>
               ))}

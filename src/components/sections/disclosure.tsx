@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cn } from "../../lib/utils";
+import { mark, markLocked, type EditProps } from "../../lib/edit/markers";
 
 export interface DisclosureProps {
   eyebrow?: string;
@@ -32,7 +33,8 @@ export function DisclosureSection({
   body,
   links,
   variant = "fineprint",
-}: DisclosureProps) {
+  edit,
+}: DisclosureProps & EditProps) {
   const paragraphs = body.split("\n\n");
   const isPanel = variant === "panel";
 
@@ -48,7 +50,10 @@ export function DisclosureSection({
           )}
         >
           {eyebrow && (
-            <p className="mb-3 text-sm font-semibold tracking-wide text-primary uppercase">
+            <p
+              className="mb-3 text-sm font-semibold tracking-wide text-primary uppercase"
+              {...mark(edit, "eyebrow")}
+            >
               {eyebrow}
             </p>
           )}
@@ -58,6 +63,7 @@ export function DisclosureSection({
                 "font-heading font-semibold text-foreground",
                 isPanel ? "text-xl" : "text-sm tracking-wide uppercase",
               )}
+              {...mark(edit, "heading")}
             >
               {heading}
             </h2>
@@ -69,6 +75,7 @@ export function DisclosureSection({
               isPanel ? "mt-4 text-base leading-relaxed" : "mt-3 text-sm leading-relaxed",
               !heading && !eyebrow && "mt-0",
             )}
+            {...mark(edit, "body", "textarea")}
           >
             {paragraphs.map((paragraph, index) => (
               <p key={index}>{paragraph}</p>
@@ -76,7 +83,7 @@ export function DisclosureSection({
           </div>
 
           {links && links.length > 0 && (
-            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
+            <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2" {...markLocked(edit)}>
               {links.map((link) => (
                 <li key={link.href}>
                   <Link

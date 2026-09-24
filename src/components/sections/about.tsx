@@ -1,5 +1,6 @@
 import { cn } from "../../lib/utils";
 import { RichText } from "../ui/rich-text";
+import { mark, type EditProps } from "../../lib/edit/markers";
 
 export interface AboutProps {
   eyebrow?: string;
@@ -21,17 +22,26 @@ export function AboutSection({
   founderImage,
   mission,
   pullQuote,
-}: AboutProps) {
+  edit,
+}: AboutProps & EditProps) {
   const hasFounder = Boolean(founderName || founderRole || founderImage);
 
   return (
     <section className="py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {eyebrow && (
-          <p className="mb-3 text-sm font-semibold tracking-wide text-primary uppercase">{eyebrow}</p>
+          <p
+            className="mb-3 text-sm font-semibold tracking-wide text-primary uppercase"
+            {...mark(edit, "eyebrow")}
+          >
+            {eyebrow}
+          </p>
         )}
         {heading && (
-          <h2 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h2
+            className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+            {...mark(edit, "heading")}
+          >
             {heading}
           </h2>
         )}
@@ -46,10 +56,13 @@ export function AboutSection({
             {/* Was `story.split("\n\n").map(<p>)`. `RichText` still renders exactly that
                 for a plain-text story, so nothing was migrated — it also accepts the
                 markup the self-edit tool's rich-text control now writes. */}
-            <RichText value={story} />
+            <RichText value={story} {...mark(edit, "story", "richtext")} />
 
             {pullQuote && (
-              <blockquote className="mt-8 border-l-2 border-primary pl-6 font-heading text-xl font-medium text-balance text-foreground sm:text-2xl">
+              <blockquote
+                className="mt-8 border-l-2 border-primary pl-6 font-heading text-xl font-medium text-balance text-foreground sm:text-2xl"
+                {...mark(edit, "pullQuote")}
+              >
                 {pullQuote}
               </blockquote>
             )}
@@ -59,7 +72,9 @@ export function AboutSection({
                 <p className="text-sm font-semibold tracking-wide text-primary uppercase">
                   Our Mission
                 </p>
-                <p className="mt-2 text-lg font-medium text-foreground">{mission}</p>
+                <p className="mt-2 text-lg font-medium text-foreground" {...mark(edit, "mission", "textarea")}>
+                  {mission}
+                </p>
               </div>
             )}
           </div>
@@ -73,15 +88,23 @@ export function AboutSection({
                   alt={founderName ?? ""}
                   className="h-40 w-40 rounded-full object-cover ring-1 ring-border"
                   loading="lazy"
+                  {...mark(edit, "founderImage", "image")}
                 />
               )}
               <div>
                 {founderName && (
-                  <p className="font-heading text-lg font-semibold text-foreground">
+                  <p
+                    className="font-heading text-lg font-semibold text-foreground"
+                    {...mark(edit, "founderName")}
+                  >
                     {founderName}
                   </p>
                 )}
-                {founderRole && <p className="text-sm text-muted-foreground">{founderRole}</p>}
+                {founderRole && (
+                  <p className="text-sm text-muted-foreground" {...mark(edit, "founderRole")}>
+                    {founderRole}
+                  </p>
+                )}
               </div>
             </div>
           )}

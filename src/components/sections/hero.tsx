@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { cn } from "../../lib/utils";
 import { buttonVariants } from "../ui/button";
+import { Mark, mark, markLocked, type EditProps } from "../../lib/edit/markers";
 
 export interface HeroProps {
   eyebrow?: string;
@@ -21,9 +22,15 @@ export function HeroSection({
   ctaText,
   ctaHref,
   backgroundImage,
-}: HeroProps) {
+  edit,
+}: HeroProps & EditProps) {
   return (
-    <section className="relative flex min-h-screen items-center overflow-hidden">
+    <section
+      className="relative flex min-h-screen items-center overflow-hidden"
+      /* The background is a CSS fill with no `<img>` to click, so the frame itself is the
+         image's layer — Framer's frame-with-image-fill behaviour (reference §7). */
+      {...mark(edit, "backgroundImage", "image")}
+    >
       {backgroundImage ? (
         <>
           <div
@@ -46,6 +53,7 @@ export function HeroSection({
               "mb-3 text-sm font-semibold tracking-wide uppercase",
               backgroundImage ? "text-white/85" : "text-primary"
             )}
+            {...mark(edit, "eyebrow")}
           >
             {eyebrow}
           </motion.p>
@@ -59,6 +67,7 @@ export function HeroSection({
               "font-heading text-4xl font-bold tracking-tight text-balance sm:text-6xl lg:text-7xl",
               backgroundImage ? "text-white" : "text-foreground"
             )}
+            {...mark(edit, "headline")}
           >
             {headline}
           </motion.h1>
@@ -72,6 +81,7 @@ export function HeroSection({
               "mx-auto mt-6 max-w-2xl text-balance text-lg sm:text-xl",
               backgroundImage ? "text-white/85" : "text-muted-foreground"
             )}
+            {...mark(edit, "subheadline", "textarea")}
           >
             {subheadline}
           </motion.p>
@@ -85,8 +95,11 @@ export function HeroSection({
           <Link
             href={ctaHref}
             className={cn(buttonVariants({ size: "lg" }), "h-11 px-8 text-base")}
+            {...markLocked(edit)}
           >
-            {ctaText}
+            <Mark edit={edit} path="ctaText">
+              {ctaText}
+            </Mark>
           </Link>
         </motion.div>
       </div>

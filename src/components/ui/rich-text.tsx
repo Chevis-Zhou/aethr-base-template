@@ -1,3 +1,5 @@
+import type * as React from "react";
+
 import { cn } from "../../lib/utils";
 import { renderRichText } from "../../lib/rich-text";
 
@@ -16,16 +18,18 @@ import { renderRichText } from "../../lib/rich-text";
 export function RichText({
   value,
   className,
+  ...rest
 }: {
   value?: string | null;
   className?: string;
-}) {
+} & Omit<React.ComponentProps<"div">, "dangerouslySetInnerHTML" | "children">) {
   const html = renderRichText(value);
   if (!html) return null;
   return (
     <div
       className={cn("rich-text", className)}
       dangerouslySetInnerHTML={{ __html: html }}
+      {...rest}
     />
   );
 }

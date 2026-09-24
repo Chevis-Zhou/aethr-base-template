@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { mark, markLocked, type EditProps } from "../../lib/edit/markers";
 
 export interface FooterProps {
   companyName: string;
@@ -39,7 +40,8 @@ export function FooterSection({
   navLinks,
   socialLinks,
   tagline,
-}: FooterProps) {
+  edit,
+}: FooterProps & EditProps) {
   const activeSocials = Object.entries(socialLinks).filter(([, url]) => url) as [
     string,
     string,
@@ -50,12 +52,18 @@ export function FooterSection({
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <p className="font-heading text-xl font-bold">{companyName}</p>
-            {tagline && <p className="mt-2 text-sm text-background/70">{tagline}</p>}
+            <p className="font-heading text-xl font-bold" {...mark(edit, "companyName")}>
+              {companyName}
+            </p>
+            {tagline && (
+              <p className="mt-2 text-sm text-background/70" {...mark(edit, "tagline", "textarea")}>
+                {tagline}
+              </p>
+            )}
           </div>
 
           {navLinks.length > 0 && (
-            <nav className="flex flex-wrap gap-x-8 gap-y-2">
+            <nav className="flex flex-wrap gap-x-8 gap-y-2" {...markLocked(edit)}>
               {navLinks.map((link, i) => (
                 <Link
                   key={`${link.label}-${i}`}
@@ -80,6 +88,7 @@ export function FooterSection({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-background/70 transition-colors hover:text-background"
+                    {...mark(edit, `socialLinks.${platform}`)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -103,7 +112,9 @@ export function FooterSection({
         </div>
 
         <div className="mt-8 border-t border-background/10 pt-8">
-          <p className="text-sm text-background/60">{copyright}</p>
+          <p className="text-sm text-background/60" {...mark(edit, "copyright")}>
+            {copyright}
+          </p>
         </div>
       </div>
     </footer>

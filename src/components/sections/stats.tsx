@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { motion, useInView, animate, useReducedMotion } from "motion/react";
 import { cn } from "../../lib/utils";
+import { mark, markItem, markList, within, type EditProps } from "../../lib/edit/markers";
 
 export interface StatsProps {
   eyebrow?: string;
@@ -53,17 +54,23 @@ function StatValue({ value }: { value: string }) {
   return <span ref={ref}>{value}</span>;
 }
 
-export function StatsSection({ eyebrow, heading, stats }: StatsProps) {
+export function StatsSection({ eyebrow, heading, stats, edit }: StatsProps & EditProps) {
   return (
     <section className="bg-muted py-16 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {eyebrow && (
-          <p className="mb-3 text-center text-sm font-semibold tracking-wide text-primary uppercase">
+          <p
+            className="mb-3 text-center text-sm font-semibold tracking-wide text-primary uppercase"
+            {...mark(edit, "eyebrow")}
+          >
             {eyebrow}
           </p>
         )}
         {heading && (
-          <h2 className="text-center font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h2
+            className="text-center font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+            {...mark(edit, "heading")}
+          >
             {heading}
           </h2>
         )}
@@ -72,11 +79,13 @@ export function StatsSection({ eyebrow, heading, stats }: StatsProps) {
             "grid grid-cols-1 gap-8 text-center md:grid-cols-2 lg:grid-cols-4",
             (eyebrow || heading) && "mt-12"
           )}
+          {...markList(edit, "stats")}
         >
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
               className="flex flex-col-reverse"
+              {...markItem(edit, i)}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
@@ -84,8 +93,13 @@ export function StatsSection({ eyebrow, heading, stats }: StatsProps) {
             >
               {/* dt before dd in the DOM — axe's dl/dt/dd ordering rule — with the visual
                   order (value above label) kept via flex-col-reverse rather than markup order. */}
-              <dt className="mt-2 text-sm text-muted-foreground">{stat.label}</dt>
-              <dd className="font-heading text-4xl font-bold text-primary sm:text-5xl">
+              <dt className="mt-2 text-sm text-muted-foreground" {...mark(within(edit, `stats[${i}]`), "label")}>
+                {stat.label}
+              </dt>
+              <dd
+                className="font-heading text-4xl font-bold text-primary sm:text-5xl"
+                {...mark(within(edit, `stats[${i}]`), "value")}
+              >
                 <StatValue value={stat.value} />
               </dd>
             </motion.div>

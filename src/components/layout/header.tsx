@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "../ui/button";
+import { mark, markLocked, type EditProps } from "../../lib/edit/markers";
 import {
   Sheet,
   SheetTrigger,
@@ -17,18 +18,25 @@ interface HeaderProps {
   nav: readonly { readonly label: string; readonly href: string }[];
 }
 
-export function Header({ siteName, nav }: HeaderProps) {
+/** The site name is `client.name`; the nav is navigation, which is paid (§1.1). */
+export const SITE_HEADER_MARKERS = { prefix: "client", rename: { siteName: "name" } } as const;
+
+export function Header({ siteName, nav, edit }: HeaderProps & EditProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="font-heading text-xl font-bold text-foreground">
+        <Link
+          href="/"
+          className="font-heading text-xl font-bold text-foreground"
+          {...mark(edit, "siteName")}
+        >
           {siteName}
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-6 md:flex" {...markLocked(edit)}>
           {nav.map((item) => (
             <Link
               key={item.href}

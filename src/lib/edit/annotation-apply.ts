@@ -1,6 +1,6 @@
 import type { EditOp, ApplyFailure } from "./apply";
 import type { FieldInventory, InventoryField, InventoryList } from "./inventory";
-import { annotatedWritePaths } from "./annotation-adapter";
+import { annotatedWritePaths, buildAnnotatedInventory } from "./annotation-adapter";
 import { getPath, render, setPath, TemplateError } from "./annotation-template";
 import { richTextToPlainText, sanitizeRichText } from "../rich-text";
 
@@ -210,10 +210,16 @@ export function applyAnnotatedEdits(
   edits: EditOp[],
 ): AnnotatedApplyResult {
   let content = current;
+  let against = inventory;
   for (const edit of edits) {
-    const result = applyAnnotatedEdit(content, inventory, templateHtml, edit);
+    const result = applyAnnotatedEdit(content, against, templateHtml, edit);
     if (!result.ok) return result;
     content = result.content;
+    // A list that just grew or shrank has different fields in it, and the partition is
+    // read off the inventory — so an edit to an item added earlier in the *same* batch
+    // would otherwise be refused as "a change ticket, not a free edit". Rebuilt only when
+    // the shape changed, because it re-parses the template and a `set` cannot change it.
+    if (edit.op !== "set") against = buildAnnotatedInventory(templateHtml, content, "");
   }
   return { ok: true, content };
 }

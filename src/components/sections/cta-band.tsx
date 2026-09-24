@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { cn } from "../../lib/utils";
 import { buttonVariants } from "../ui/button";
+import { Mark, mark, markLocked, type EditProps } from "../../lib/edit/markers";
 
 export interface CTABandProps {
   eyebrow?: string;
@@ -39,7 +40,8 @@ export function CTABandSection({
   ctaText,
   ctaHref,
   variant = "primary",
-}: CTABandProps) {
+  edit,
+}: CTABandProps & EditProps) {
   const styles = VARIANT_STYLES[variant];
 
   return (
@@ -52,19 +54,34 @@ export function CTABandSection({
         className="mx-auto max-w-3xl px-4 text-center sm:px-6"
       >
         {eyebrow && (
-          <p className="mb-3 text-sm font-semibold tracking-wide uppercase opacity-80">{eyebrow}</p>
+          <p
+            className="mb-3 text-sm font-semibold tracking-wide uppercase opacity-80"
+            {...mark(edit, "eyebrow")}
+          >
+            {eyebrow}
+          </p>
         )}
         {heading && (
-          <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+          <h2
+            className="font-heading text-3xl font-bold tracking-tight sm:text-4xl"
+            {...mark(edit, "heading")}
+          >
             {heading}
           </h2>
         )}
-        {subheading && <p className="mt-4 text-lg opacity-90">{subheading}</p>}
+        {subheading && (
+          <p className="mt-4 text-lg opacity-90" {...mark(edit, "subheading", "textarea")}>
+            {subheading}
+          </p>
+        )}
         <Link
           href={ctaHref}
           className={cn(buttonVariants({ size: "lg" }), "mt-8 h-11 px-8 text-base", styles.button)}
+          {...markLocked(edit)}
         >
-          {ctaText}
+          <Mark edit={edit} path="ctaText">
+            {ctaText}
+          </Mark>
         </Link>
       </motion.div>
     </section>

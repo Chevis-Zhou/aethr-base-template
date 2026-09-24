@@ -44,7 +44,7 @@ const PRESERVED_APP_ENTRIES = new Set(["layout.tsx", "globals.css", "favicon.ico
  * assembled earlier). Left alone, that stale route silently rides along into the next
  * spec's build. The suite needs to know exactly what's in the build, so it resets first.
  */
-function resetGeneratedPages(projectRoot: string): void {
+export function resetGeneratedPages(projectRoot: string): void {
   const appDir = path.join(projectRoot, "src/app");
   for (const entry of fs.readdirSync(appDir, { withFileTypes: true })) {
     if (PRESERVED_APP_ENTRIES.has(entry.name)) continue;
@@ -61,7 +61,7 @@ function resetGeneratedPages(projectRoot: string): void {
  */
 const ASSEMBLER_TRACKED_OUTPUTS = ["src/app/page.tsx", "src/lib/client-config.ts"];
 
-function restoreAssemblerOutputs(projectRoot: string): void {
+export function restoreAssemblerOutputs(projectRoot: string): void {
   try {
     execFileSync("git", ["checkout", "--", ...ASSEMBLER_TRACKED_OUTPUTS], {
       cwd: projectRoot,

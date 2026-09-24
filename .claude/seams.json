@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "purpose": "Machine-readable seam declarations, consumed by arch-drift-check. Prose lives in CONTEXT.md and docs/adr/ — this file only adds what those can't: a parseable module -> barrel -> carve-outs -> test-dir list.",
+    "source": "~/.claude/plans/aethr-refactor-edit-module-seams.md, Phase 2"
+  },
+  "modules": [
+    {
+      "name": "edit",
+      "root": "src/lib/edit",
+      "barrel": "src/lib/edit/index.ts",
+      "importPattern": "alias+path-segment",
+      "importPatternNote": "eslint matches both '@/lib/edit/*' and '**/edit/*' — this repo uses relative imports as often as the alias, and 'src/lib/edit' is the only edit/ directory in the tree so the segment match is safe. Do not copy this pattern into a repo with more than one edit/ directory (see aethr-portal).",
+      "carveOuts": [
+        {
+          "path": "src/lib/edit/preview",
+          "reason": "14 client components behind \"use client\"; a barrel import from a server route would drag the whole section tree into a server bundle"
+        },
+        {
+          "path": "src/lib/edit/markers",
+          "reason": "imported by all 16 section components; routing through the barrel would make every built client site import the whole edit backend (Zod, both readers, the write path) to emit data-ae-* attributes no visitor ever sees"
+        }
+      ],
+      "testDir": "src/lib/edit/__tests__",
+      "testRunner": "node:test via tsx (\"pnpm test\")",
+      "conformanceScripts": ["scripts/check-*"],
+      "conformanceScriptsNote": "exempt from the lint rule — the module's own test seam, not callers",
+      "mirroredTo": [
+        {
+          "repo": "aethr-portal",
+          "path": "src/template/lib/edit",
+          "via": "scripts/sync-template.mjs",
+          "gitignored": true,
+          "note": "never hand-edited; wiped and regenerated on every build. See that repo's seams.json for its consumption barrel."
+        }
+      ]
+    }
+  ]
+}
