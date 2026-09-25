@@ -1,5 +1,5 @@
 ---
-updated: 2026-09-24
+updated: 2026-09-25
 status: active
 ---
 # AethrDesign Next.js base template + assembly system — state
@@ -8,7 +8,9 @@ status: active
 
 _Keep only the newest entry here. When adding one, move the previous entry to the top of [`docs/state-history.md`](docs/state-history.md) — history there, current state here._
 
-**2026-09-24 — investigated reported Base UI `nativeButton` console warnings (header.tsx's `SheetTrigger`/`Button`, faq.tsx's `AccordionTrigger`, contact.tsx's `Button`) surfacing in aethr-portal's assembled preview — could not reproduce, no source changed.** Tested three ways: the standalone `aethr-base-template` dev server; a faithful reproduction of the portal's `SitePreview` iframe + `createPortal` canvas-edit path (throwaway route, synthetic `SiteSpec`, deleted after); and an isolated iframe + `createPortal` test with no canvas hit-testing. All three stayed clean, including opening the mobile Sheet and expanding the FAQ accordion. Base UI's check (`useButton.js`) is a post-mount `tagName === 'BUTTON'` test via Floating UI's realm-safe `isHTMLElement`, so the iframe-portal document boundary is not a plausible cause either. The only two genuine `render`-prop Button compositions in this repo — `SheetTrigger → Button` (header.tsx) and `SheetClose → Button` (sheet.tsx) — already match Base UI's documented pattern; `faq.tsx`'s `AccordionTrigger` and `contact.tsx`'s `Button` don't use `render` at all, so there is nothing to change per Base UI's own model. Best guess: a stale Fast-Refresh module instance during live editing, or an earlier file snapshot, not reproducible against current source. **If it recurs, capture the exact console message + React's component owner-stack before re-investigating** — that pins the actual mount instead of guessing at repro conditions.
+**2026-09-25 — 2 critical Dependabot RCEs closed; real runtime exposure, not just noise.** `next` was pinned at 16.2.9 (unauthenticated RCE in Image Optimization API on AVIF, plus a Windows-hosted RCE — both patched >=16.3.3); bumped to 16.3.4, matching `aethr-portal`. Separately, `shadcn` (dev-only CLI, never imported at runtime — confirmed by grep) was sitting in `dependencies`, so its whole MCP-SDK stack (hono, qs, fast-uri, ip-address, nanoid, js-yaml, brace-expansion, postcss, sharp...) counted as runtime-scope on GitHub's dependency graph, inflating a real 2-critical issue into ~65 alerts. Moved to devDependencies; added `pnpm-workspace.yaml` overrides for the rest. Full detail: `~/.claude/plans/aethr-harden-prod-safety.md` Phase 3 State Sync (triage note). 65 alerts → 0, live-confirmed via `gh api`. Re-verified lint/typecheck/test all green after the `next` bump (16.2.9→16.3.6 resolved).
+
+**Next:** none — this was a closed-loop fix, not an open thread.
 
 ## Open threads
 
