@@ -13,6 +13,7 @@ import {
   type DeployStage,
   type DeployTarget,
 } from "./wrangler-config";
+import { writeHeadersFile } from "./security-headers";
 import {
   computeManifest,
   diffManifest,
@@ -190,6 +191,12 @@ export async function staging(opts: StageOptions): Promise<ArtifactManifest> {
     run("npx", ["next", "build"], dryRun);
   } else {
     console.log("  skipping build — staging the existing out/");
+  }
+
+  // Before the manifest, so the pinned artifact includes the headers DEPLOY will re-upload.
+  if (!dryRun) {
+    const target = writeHeadersFile(outDir);
+    console.log(`  wrote ${path.relative(PROJECT_ROOT, target)}`);
   }
 
   // Recorded before upload, so what is pinned is what is about to be sent.

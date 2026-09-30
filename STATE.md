@@ -1,5 +1,5 @@
 ---
-updated: 2026-09-25
+updated: 2026-09-30
 status: active
 ---
 # AethrDesign Next.js base template + assembly system — state
@@ -8,9 +8,9 @@ status: active
 
 _Keep only the newest entry here. When adding one, move the previous entry to the top of [`docs/state-history.md`](docs/state-history.md) — history there, current state here._
 
-**2026-09-25 — 2 critical Dependabot RCEs closed; real runtime exposure, not just noise.** `next` was pinned at 16.2.9 (unauthenticated RCE in Image Optimization API on AVIF, plus a Windows-hosted RCE — both patched >=16.3.3); bumped to 16.3.4, matching `aethr-portal`. Separately, `shadcn` (dev-only CLI, never imported at runtime — confirmed by grep) was sitting in `dependencies`, so its whole MCP-SDK stack (hono, qs, fast-uri, ip-address, nanoid, js-yaml, brace-expansion, postcss, sharp...) counted as runtime-scope on GitHub's dependency graph, inflating a real 2-critical issue into ~65 alerts. Moved to devDependencies; added `pnpm-workspace.yaml` overrides for the rest. Full detail: `~/.claude/plans/aethr-harden-prod-safety.md` Phase 3 State Sync (triage note). 65 alerts → 0, live-confirmed via `gh api`. Re-verified lint/typecheck/test all green after the `next` bump (16.2.9→16.3.6 resolved).
+**2026-09-30 — `_headers` generator: client static exports now grade A+ on Mozilla HTTP Observatory (was D/30).** `src/lib/deploy/security-headers.ts` writes `out/_headers` after the build (HSTS, nosniff, X-Frame-Options, Referrer-Policy, COOP, and a per-page CSP: `default-src 'none'`, script-src `'self'` + the sha256 of each page's inline scripts — no `'unsafe-inline'`). `staging()` in `deploy.ts` calls it before the manifest. Verified on a throwaway Worker: A+ / 135, 12/12 tests, exactly one CSP header on every route; page hydrates under the CSP. Cloudflare quirks measured, not assumed: multiple CSP headers AND, so page rules detach the inherited one (`! Content-Security-Policy`) — except the root `/`, where detach did not work and the fallback is `/:seg` + `/:seg/*` instead of `/*`; 100 rules / 2,000 chars per line are hard-checked. Turnstile and Google Fonts origins are auto-detected. 13 unit tests. Not yet exercised on a real client site's staging deploy (Turnstile branch untested live). Committed here; the tasteled wiring is not (it sits inside tasteled's uncommitted cf-deploy.sh refactor).
 
-**Next:** none — this was a closed-loop fix, not an open thread.
+**Next:** run one real client staging with it; then wire tasteled (done: `pnpm security-headers` in its deploy) and the portal's `security-headers` goal metric.
 
 ## Open threads
 
