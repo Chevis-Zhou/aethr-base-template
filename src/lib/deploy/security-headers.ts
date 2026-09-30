@@ -37,6 +37,11 @@ export const HEADERS_LINE_LIMIT = 2000;
 const GOOGLE_FONTS_CSS = "https://fonts.googleapis.com";
 const GOOGLE_FONTS_FILES = "https://fonts.gstatic.com";
 const TURNSTILE = "https://challenges.cloudflare.com";
+// Cloudflare Web Analytics: the beacon is injected at the edge, after the build, so it never
+// appears in `out/` to be detected. Granted on every site — without it the beacon is blocked
+// and analytics silently stops (tasteled.com, 2026-09-30, the first deploy with this CSP).
+const CF_ANALYTICS_SCRIPT = "https://static.cloudflareinsights.com";
+const CF_ANALYTICS_BEACON = "https://cloudflareinsights.com";
 
 export interface SecurityHeadersOptions {
   /** Origins the site's own JS `fetch`es or a form posts to (e.g. the portal API). */
@@ -154,10 +159,10 @@ export interface PolicyInput {
 }
 
 export function buildPolicy({ assets, turnstile, connectOrigins, frameOrigins }: PolicyInput): string {
-  const scriptSrc = ["'self'", ...assets.scriptHashes, ...assets.scriptOrigins];
+  const scriptSrc = ["'self'", ...assets.scriptHashes, ...assets.scriptOrigins, CF_ANALYTICS_SCRIPT];
   const styleSrc = ["'self'", ...assets.styleHashes, ...assets.styleOrigins];
   const fontSrc = ["'self'", "data:"];
-  const connectSrc = ["'self'", ...connectOrigins];
+  const connectSrc = ["'self'", ...connectOrigins, CF_ANALYTICS_BEACON];
   const frames = [...frameOrigins, ...assets.frameOrigins];
 
   if (assets.styleOrigins.includes(GOOGLE_FONTS_CSS)) fontSrc.push(GOOGLE_FONTS_FILES);

@@ -85,6 +85,13 @@ describe("buildPolicy", () => {
     assert.match(csp, /connect-src 'self' https:\/\/app\.example\.com/);
     assert.match(csp, /form-action 'self' https:\/\/app\.example\.com/);
   });
+
+  it("always lets Cloudflare Web Analytics load and report, since the edge injects it after the build", () => {
+    const csp = buildPolicy(base);
+    assert.match(csp, /script-src [^;]*https:\/\/static\.cloudflareinsights\.com/);
+    assert.match(csp, /connect-src [^;]*https:\/\/cloudflareinsights\.com/);
+    assert.ok(!/form-action [^;]*cloudflareinsights/.test(csp), "a beacon is not a form target");
+  });
 });
 
 describe("routeFor", () => {
