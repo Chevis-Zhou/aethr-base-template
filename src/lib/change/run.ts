@@ -803,8 +803,8 @@ Global:  --vault-root <path>   default ${DEFAULT_VAULT_ROOT}
                                (and --carrier annotated for a hand-built site)
          --dry-run             rehearsal: no wrangler, no portal; refuses the real Vault
 
-Portal calls need INTAKE_ADMIN_SECRET, and CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET
-(an Access service token) against portal.aethrdesign.com.
+Portal calls need CF_ACCESS_CLIENT_ID / CF_ACCESS_CLIENT_SECRET (an Access service
+token) against portal.aethrdesign.com; a local portal needs nothing.
 `;
 
 async function main(): Promise<void> {

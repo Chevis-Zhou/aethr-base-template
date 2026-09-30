@@ -2,14 +2,14 @@
  * The change runner's calls into the portal's admin API — `aethr-portal`
  * `src/app/api/admin/{spec,change-passes}/route.ts`.
  *
- * Two credentials, both from the environment, neither ever printed:
- *
- * - `INTAKE_ADMIN_SECRET` — the bearer every `/api/admin/*` route checks.
- * - `CF_ACCESS_CLIENT_ID` + `CF_ACCESS_CLIENT_SECRET` — a Cloudflare Access **service
- *   token**. `/api/admin/*` on `portal.aethrdesign.com` sits behind Access (armed
- *   2026-09-09), which answers a request without these with a 302 to the login page. On
- *   `app.tasteled.com` the same paths 404 by design (ticket 024), so the default base is
- *   the bespoke host regardless of which book the client is on.
+ * One credential, from the environment, never printed: `CF_ACCESS_CLIENT_ID` +
+ * `CF_ACCESS_CLIENT_SECRET`, a Cloudflare Access **service token**. `/api/admin/*` on
+ * `portal.aethrdesign.com` sits behind Access (armed 2026-09-09), which answers a request
+ * without these with a 302 to the login page; the portal then verifies the Access JWT
+ * and pins the token's Client ID (2026-09-30 — the old `INTAKE_ADMIN_SECRET` bearer is
+ * retired). A local portal needs neither (`PORTAL_ACCESS_DEV=1` in its `.dev.vars`). On
+ * `app.tasteled.com` the same paths 404 by design (ticket 024), so the default base is
+ * the bespoke host regardless of which book the client is on.
  */
 
 export interface PortalOptions {
@@ -59,12 +59,7 @@ export interface PortalRequest {
 }
 
 function headers(): Record<string, string> {
-  const secret = process.env.INTAKE_ADMIN_SECRET;
-  if (!secret) throw new Error("INTAKE_ADMIN_SECRET is not set — the portal admin API needs it.");
-  const out: Record<string, string> = {
-    Authorization: `Bearer ${secret}`,
-    "Content-Type": "application/json",
-  };
+  const out: Record<string, string> = { "Content-Type": "application/json" };
   const id = process.env.CF_ACCESS_CLIENT_ID;
   const accessSecret = process.env.CF_ACCESS_CLIENT_SECRET;
   if (id && accessSecret) {
