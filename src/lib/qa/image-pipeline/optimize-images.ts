@@ -19,6 +19,9 @@
  *    JPEG at quality 100 (mozjpeg), WebP lossless with `exact` (keeps the colour under
  *    transparent pixels) at effort 6, AVIF lossless. Size guard: when only metadata would
  *    change and the re-encode is not smaller, the original stays.
+ *    Animated WebP/GIF keep every frame: they are read with `animated: true`, measured per
+ *    frame, never auto-rotated, and re-encoded with their animation (WebP lossless, GIF on
+ *    its own palette). Without this a resize or metadata strip silently kept frame 1 only.
  *    A site may opt named files into a larger *bounded* budget (`OptimizeOptions.bounded`):
  *    those are held to a long-edge and decoded-pixel limit instead of the 2500px cap, and
  *    `boundedBudgetViolations()` also checks their encoded size.
@@ -273,12 +276,14 @@ export async function optimizeImage(
   filePath: string,
   options: { budget?: BoundedBudget; projectRoot?: string } = {},
 ): Promise<boolean> {
-  const meta = await sharp(filePath, { failOn: "none" }).metadata();
+  const meta = await sharp(filePath, { failOn: "none", animated: true }).metadata();
+  const animated = (meta.pages ?? 1) > 1;
   const width = meta.width ?? 0;
-  const height = meta.height ?? 0;
+  // With `animated: true`, `height` is the whole frame stack; one frame is `pageHeight`.
+  const height = animated ? (meta.pageHeight ?? meta.height ?? 0) : (meta.height ?? 0);
   const { budget } = options;
   // sharp resizes after .rotate(), so a bounded target is computed in the upright orientation.
-  const rotated = [5, 6, 7, 8].includes(meta.orientation ?? 1);
+  const rotated = !animated && [5, 6, 7, 8].includes(meta.orientation ?? 1);
   const boundedSize = budget ? boundedDimensions(rotated ? height : width, rotated ? width : height, budget) : null;
   const needsResize = budget
     ? Math.max(width, height) > budget.maxEdge || width * height > budget.maxPixels
@@ -286,7 +291,9 @@ export async function optimizeImage(
 
   if (!needsResize && !meta.exif && !meta.iptc && !meta.xmp) return false;
 
-  let pipeline = sharp(filePath).rotate().keepIccProfile();
+  let pipeline = animated
+    ? sharp(filePath, { animated: true }).keepIccProfile()
+    : sharp(filePath).rotate().keepIccProfile();
   if (needsResize) pipeline = pipeline.resize(boundedSize ?? { width: MAX_WIDTH, withoutEnlargement: true });
 
   const ext = path.extname(filePath).toLowerCase();
@@ -294,6 +301,7 @@ export async function optimizeImage(
   else if (ext === ".jpg" || ext === ".jpeg") pipeline = pipeline.jpeg({ quality: 100, mozjpeg: true });
   else if (ext === ".webp") pipeline = pipeline.webp({ lossless: true, exact: true, effort: 6 });
   else if (ext === ".avif") pipeline = pipeline.avif({ lossless: true });
+  else if (ext === ".gif") pipeline = pipeline.gif({ reuse: true });
 
   const tmp = `${filePath}.tmp`;
   const oldSize = (await fs.stat(filePath)).size;
