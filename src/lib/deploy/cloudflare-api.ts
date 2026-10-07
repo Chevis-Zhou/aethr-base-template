@@ -138,3 +138,26 @@ export async function listWorkerDomains(service: string, dryRun: boolean): Promi
   );
   return Array.isArray(result) ? result : [];
 }
+
+interface WorkerDeployment {
+  id: string;
+  created_on: string;
+  source?: string;
+  versions: { version_id: string; percentage: number }[];
+}
+
+/**
+ * GET /accounts/{id}/workers/scripts/{name}/deployments — the first entry is the deployment
+ * serving traffic. The fenced deploy coordinator compares it with the one the portal recorded,
+ * so a deploy made outside the coordinator (Mac runner, `deploy.ts`, the dashboard) stops the
+ * next switch instead of being silently overwritten. `null` when the Worker has none.
+ */
+export async function currentDeployment(service: string, dryRun: boolean): Promise<string | null> {
+  const accountId = requireAccountId(dryRun);
+  const result = await cf<{ deployments: WorkerDeployment[] }>(
+    "GET",
+    `/accounts/${accountId}/workers/scripts/${encodeURIComponent(service)}/deployments`,
+    { dryRun, fake: { deployments: [] } },
+  );
+  return result?.deployments?.[0]?.id ?? null;
+}

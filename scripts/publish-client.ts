@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
+import * as os from "node:os";
 import * as path from "node:path";
 import { z } from "zod/v4";
 
@@ -17,6 +18,7 @@ import {
 } from "../src/lib/deploy/wrangler-config";
 import { listWorkerDomains } from "../src/lib/deploy/cloudflare-api";
 import { assertRoutesAttached } from "../src/lib/deploy/deploy";
+import { packArtifact } from "../src/lib/deploy/artifact-pack";
 import type { CheckFinding } from "../src/lib/qa/types";
 
 /**
@@ -31,6 +33,12 @@ import type { CheckFinding } from "../src/lib/qa/types";
  *
  *   fetch spec → assemble → fetch client images → optimize → next build
  *     → FAST GATE (pre-upload, no opt-out) → wrangler deploy → report
+ *
+ * With `--job-id` (a *fenced* destination, ADR-0009 A3 in the portal) the run stops after the
+ * gate: it packs `out/` into a deterministic artifact, uploads it to the portal under its hash
+ * and exits. It never touches Cloudflare and needs no Cloudflare credential; the portal's deploy
+ * coordinator is the only thing that can make that artifact live, and only if it is still the
+ * newest accepted publish. The claim is a lease: a cancelled or superseded run cannot report.
  *
  * The gate sits before the upload because §4's whole point is that a client edit which
  * breaks the site never reaches a hostname. On a failure this exits non-zero having
@@ -57,6 +65,8 @@ const buildPayload = z.object({
   contactEmail: z.string(),
   /** Present for a production publish; absent for staging. */
   domain: z.string().optional(),
+  /** Fenced claims only: the lease this run holds. */
+  attempt: z.number().int().optional(),
   /** Client uploads living in R2, fetched into `public/` before the build. */
   assets: z
     .array(z.object({ path: z.string(), url: z.string() }))
@@ -73,6 +83,10 @@ interface Args {
   portalBase: string;
   buildSecret: string;
   dryRun: boolean;
+  /** A fenced deploy job. Present → build and upload an artifact only. */
+  jobId?: string;
+  /** Lease owner for a fenced claim: the Actions run, or this machine and process. */
+  runner: string;
 }
 
 function parseArgs(argv: string[]): Args {
@@ -105,11 +119,17 @@ function parseArgs(argv: string[]): Args {
     portalBase: (flags["portal-base"] as string) ?? process.env.PORTAL_BASE ?? "https://portal.aethrdesign.com",
     buildSecret: need("build-secret", "PORTAL_BUILD_SECRET"),
     dryRun: flags["dry-run"] === true,
+    jobId: (flags["job-id"] as string) || process.env.PUBLISH_JOB_ID || undefined,
+    runner: process.env.GITHUB_RUN_ID
+      ? `gha-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT ?? "1"}`
+      : `local-${os.hostname()}-${process.pid}`,
   };
 }
 
 async function fetchPayload(args: Args): Promise<BuildPayload> {
-  const url = `${args.portalBase}/api/edit/build?slug=${encodeURIComponent(args.slug)}&publishId=${encodeURIComponent(args.publishId)}`;
+  const url = args.jobId
+    ? `${args.portalBase}/api/deploy/build?job=${encodeURIComponent(args.jobId)}&runner=${encodeURIComponent(args.runner)}`
+    : `${args.portalBase}/api/edit/build?slug=${encodeURIComponent(args.slug)}&publishId=${encodeURIComponent(args.publishId)}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${args.buildSecret}` } });
   if (!res.ok) {
     throw new Error(`Portal returned ${res.status} fetching the build payload: ${await res.text()}`);
@@ -139,16 +159,64 @@ async function fetchAssets(assets: { path: string; url: string }[]): Promise<voi
   }
 }
 
+/**
+ * The commit whose Worker source the coordinator will deploy alongside this artifact. A dirty
+ * checkout has no such commit, so a live fenced run refuses one.
+ */
+function sourceCommit(args: Args): string {
+  const commit = process.env.GITHUB_SHA ?? execFileSync("git", ["rev-parse", "HEAD"], { cwd: PROJECT_ROOT }).toString().trim();
+  const dirty = execFileSync("git", ["status", "--porcelain", "--", "src/worker.ts", "package.json", "pnpm-lock.yaml"], { cwd: PROJECT_ROOT }).toString().trim();
+  if (dirty && !args.dryRun && !process.env.GITHUB_SHA) {
+    throw new Error(`Worker inputs are uncommitted, so no commit describes this build:\n${dirty}`);
+  }
+  return commit;
+}
+
+/** Fenced: hand the gated build to the portal. Nothing here can make it live. */
+async function uploadArtifact(args: Args, attempt: number): Promise<void> {
+  const artifact = packArtifact(path.join(PROJECT_ROOT, "out"));
+  const commit = sourceCommit(args);
+  console.log(`  artifact ${artifact.hash} (${artifact.files} files, ${artifact.bytes.length} bytes) at ${commit}`);
+  if (args.dryRun) {
+    console.log("  [dry-run] would upload the artifact to /api/deploy/artifact");
+    return;
+  }
+  const params = new URLSearchParams({ job: args.jobId!, runner: args.runner, attempt: String(attempt), commit });
+  const res = await fetch(`${args.portalBase}/api/deploy/artifact?${params}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${args.buildSecret}`,
+      "Content-Type": "application/gzip",
+      "x-artifact-sha256": artifact.hash,
+    },
+    body: new Uint8Array(artifact.bytes),
+  });
+  const body = await res.text();
+  if (!res.ok) throw new Error(`Portal refused the artifact: ${res.status} ${body}`);
+  console.log(`  artifact accepted — the deploy coordinator makes it live: ${body}`);
+}
+
 async function report(
   args: Args,
   body: {
     status: "published" | "failed";
     version: number;
+    attempt?: number;
     url?: string;
     findings?: CheckFinding[];
     error?: string;
   },
 ): Promise<void> {
+  if (args.jobId) {
+    if (body.status !== "failed") return;
+    const res = await fetch(`${args.portalBase}/api/deploy/build`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${args.buildSecret}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ jobId: args.jobId, runner: args.runner, attempt: body.attempt, error: body.error, findings: body.findings }),
+    });
+    if (!res.ok) console.error(`Reporting back to the portal failed: ${res.status} ${await res.text()}`);
+    return;
+  }
   const res = await fetch(`${args.portalBase}/api/edit/build`, {
     method: "POST",
     headers: {
@@ -169,8 +237,9 @@ async function main(): Promise<void> {
   const problem = validateSlug(args.slug);
   if (problem) throw new Error(`Invalid slug "${problem.slug}": it ${problem.reason}.`);
 
-  console.log(`PUBLISH ${args.slug} (${args.stage}) — publish ${args.publishId}`);
+  console.log(`PUBLISH ${args.slug} (${args.stage}) — publish ${args.publishId}${args.jobId ? ` — fenced job ${args.jobId} as ${args.runner}` : ""}`);
   const payload = await fetchPayload(args);
+  if (args.jobId && payload.attempt === undefined) throw new Error("Portal did not grant a build lease");
 
   try {
     const specPath = path.join(PROJECT_ROOT, "spec.json");
@@ -202,11 +271,16 @@ async function main(): Promise<void> {
     if (!gate.passed) {
       console.error(`  GATE FAILED — ${gate.findings.length} blocker(s). Nothing uploaded.`);
       for (const finding of gate.findings) console.error(`    ${finding.check}: ${finding.message}`);
-      await report(args, { status: "failed", version: payload.version, findings: gate.findings });
+      await report(args, { status: "failed", version: payload.version, attempt: payload.attempt, findings: gate.findings });
       process.exitCode = 1;
       return;
     }
     console.log("  gate passed.");
+
+    if (args.jobId) {
+      await uploadArtifact(args, payload.attempt!);
+      return;
+    }
 
     const extraHostnames =
       args.stage === "staging"
@@ -246,7 +320,7 @@ async function main(): Promise<void> {
     await report(args, { status: "published", version: payload.version, url });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    await report(args, { status: "failed", version: payload.version, error: message });
+    await report(args, { status: "failed", version: payload.version, attempt: payload.attempt, error: message });
     throw err;
   }
 }

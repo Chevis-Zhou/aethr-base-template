@@ -8,17 +8,15 @@
 # for a re-publish. The build takes minutes, which is the number the editor says out loud;
 # the instant thing is the preview, not this.
 #
-# Secrets this needs on the repo:
-#   PORTAL_BUILD_SECRET      — bearer the runner presents to /api/edit/build (both ways)
-#   CLOUDFLARE_API_TOKEN     — Workers Scripts Write on the AethrDesign account
-#   CLOUDFLARE_ACCOUNT_ID    — the AethrDesign account (dashboard → Account ID)
-#   RESEND_API_KEY           — not used here; the contact Worker's secret is already set
+# FENCED (ADR-0009 A3 in the portal, since 2026-10-06): this run builds, gates and uploads an
+# artifact to the portal, then stops. It holds no Cloudflare credential and cannot deploy; the
+# portal's deploy coordinator (aethr-portal site-deploy.yml) is the only thing that can make the
+# artifact live. The unfenced recipe that deployed from here was retired the same day, and the
+# repo's CLOUDFLARE_* secrets were deleted with it — do not add them back.
 #
-# NOTE on the token: `deploy.ts` on the Mac deliberately strips CLOUDFLARE_API_TOKEN and
-# uses OAuth, because attaching a *Custom Domain* fails auth 10000 with the zone token
-# after a successful asset upload. This workflow re-publishes a Worker whose custom domains
-# are already attached, which is a plain script upload and the token handles it. A
-# first-time attach still runs from the Mac.
+# Secrets this needs on the repo:
+#   PORTAL_BUILD_SECRET      — bearer the runner presents to /api/deploy/*
+#   RESEND_API_KEY           — not used here; the contact Worker's secret is already set
 
 name: Publish a client site
 
@@ -43,6 +41,10 @@ on:
         description: Portal origin to fetch the spec from
         required: false
         default: https://portal.aethrdesign.com
+        type: string
+      job_id:
+        description: The portal's deploy job — this run builds and uploads its artifact only
+        required: true
         type: string
 
 concurrency:
@@ -93,14 +95,15 @@ jobs:
       - name: Install Chromium for the fast gate
         run: pnpm exec playwright install --with-deps chromium
 
-      - name: Build, gate and deploy
+      - name: Build, gate and upload the artifact (no Cloudflare credential)
         env:
           PORTAL_BUILD_SECRET: ${{ secrets.PORTAL_BUILD_SECRET }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SLUG: ${{ inputs.slug }}
+          STAGE: ${{ inputs.stage }}
+          PUBLISH_ID: ${{ inputs.publish_id }}
+          PORTAL_BASE: ${{ inputs.portal_base }}
+          PUBLISH_JOB_ID: ${{ inputs.job_id }}
         run: |
           npx tsx scripts/publish-client.ts \
-            --slug "${{ inputs.slug }}" \
-            --stage "${{ inputs.stage }}" \
-            --publish-id "${{ inputs.publish_id }}" \
-            --portal-base "${{ inputs.portal_base }}"
+            --slug "$SLUG" --stage "$STAGE" --publish-id "$PUBLISH_ID" \
+            --portal-base "$PORTAL_BASE" --job-id "$PUBLISH_JOB_ID"
