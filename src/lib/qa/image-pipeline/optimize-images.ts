@@ -1,23 +1,46 @@
 /**
- * Image optimization for the productized pipeline — `qa-specification.md` §6, ported from
- * `portfolio-2026/scripts/optimize-images.mjs`. Same two stages, same manifest gate:
+ * The image optimizer, and the rules it enforces, for every AethrDesign and TasteLed site
+ * that can reach this repo — `qa-specification.md` §6. One copy (Business `CLAUDE.md` →
+ * "One feature, one build"). Consumers:
  *
- * 1. sharp — resize anything over 2500px, strip EXIF/ICC/IPTC/XMP, with the size guard
- *    that keeps the original when a metadata-only strip inflates the file.
+ * - this template's `scripts/publish-client.ts` and asset check (`asset-check.ts`);
+ * - `tasteled`, whose `pnpm optimize-images` runs this file with `--manifest .imageoptim-manifest.json`;
+ * - `portfolio-2026`, whose `scripts/optimize-images.mjs` imports it and adds only what is
+ *   specific to that site (which images open in its zoom viewer, its placeholder exemption).
+ *
+ * Change behaviour here and it changes for all of them. `tasteled-portfolio-template` keeps
+ * its own copy on purpose — it is sold as a standalone package and cannot reach a sibling repo.
+ *
+ * The rules (quality over bytes — sources are never lossy-compressed):
+ *
+ * 1. sharp — resize anything wider than 2500px; strip EXIF/IPTC/XMP and keep the ICC
+ *    profile (P3 from phone photos, sRGB from screenshots), applying EXIF orientation first.
+ *    Re-encodes are lossless or as close as the format allows: PNG at compression level 9,
+ *    JPEG at quality 100 (mozjpeg), WebP lossless with `exact` (keeps the colour under
+ *    transparent pixels) at effort 6, AVIF lossless. Size guard: when only metadata would
+ *    change and the re-encode is not smaller, the original stays.
+ *    A site may opt named files into a larger *bounded* budget (`OptimizeOptions.bounded`):
+ *    those are held to a long-edge and decoded-pixel limit instead of the 2500px cap, and
+ *    `boundedBudgetViolations()` also checks their encoded size.
  * 2. Lossless byte-level compression. On macOS that is ImageOptim.app. On Linux it is the
- *    three binaries ImageOptim wraps — `oxipng`, `zopflipng` and `jpegtran` — run directly,
- *    which is what lets a client's own upload be processed by the shared cloud builder
- *    (ticket 012 §3 reason 3) rather than serialised through one Mac.
+ *    binaries ImageOptim wraps — `oxipng` and `jpegtran` — run directly, both keeping the ICC profile, which is what lets a
+ *    client's own upload be processed by the shared cloud builder (ticket 012 §3 reason 3)
+ *    rather than serialised through one Mac.
  *
- * Deliberately NOT ported: any next/image awareness. `next.config.ts` sets
- * `images: { unoptimized: true }` and every section component renders a plain `<img>` —
- * there is no `/_next/image` endpoint in this template at all, static export or not. The
- * source script has none either (it optimizes `public/` directly), so this part needed no
- * adaptation — see `prewarm.ts` for the part that did.
+ * A SHA-256 manifest (`{ relPath: sha256 }`, default `.image-manifest.json` at the project
+ * root) records every file that has been through both stages; only files whose hash differs
+ * are touched. The asset check reads the same file. Any `raw/` directory under `public/` holds
+ * untouched compose sources and is never touched (see `isRawCapture`). Never pre-convert to
+ * WebP or AVIF here — serving formats are the site's image layer's job.
  *
- * Manifest: `.image-manifest.json` at the project root, `{ relPath: sha256 }`. The asset
- * check (`asset-check.ts`) reads the same file — one manifest, two consumers, same rule
- * STATE.md set for the shared Playwright install.
+ * Deliberately NOT here: any next/image awareness. This template sets
+ * `images: { unoptimized: true }` and renders plain `<img>`; the optimizer works on `public/`
+ * directly, so it suits a static export and a next/image site alike. See `prewarm.ts` for the
+ * part that did need a Cloudflare rewrite.
+ *
+ * One sharp per process: a consumer that imports this module must not load its own copy of
+ * sharp in the same process (portfolio-2026, `scripts/verify-sharp.mjs`: two libvips binaries
+ * hang). Everything a consumer needs from sharp is exported here.
  */
 import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
@@ -32,26 +55,73 @@ export const MAX_WIDTH = 2500;
 export const RASTER_EXT = new Set([".png", ".jpg", ".jpeg", ".webp", ".avif", ".gif", ".tiff"]);
 const IMAGEOPTIM_EXT = new Set([".png", ".jpg", ".jpeg", ".gif"]);
 
-export function manifestPath(projectRoot: string): string {
-  return path.join(projectRoot, ".image-manifest.json");
+export const DEFAULT_MANIFEST = ".image-manifest.json";
+
+/** A larger budget for images a site opts in, e.g. portfolio-2026's zoomable detail images. */
+export interface BoundedBudget {
+  /** Longest allowed edge, either axis. */
+  maxEdge: number;
+  /** Decoded area limit, which bounds memory however small the file is. */
+  maxPixels: number;
+  /** Encoded size limit, checked by `boundedBudgetViolations()`. */
+  maxBytes?: number;
 }
 
-export async function readManifest(projectRoot: string): Promise<Record<string, string>> {
+export interface OptimizeOptions {
+  manifestFile?: string;
+  /** Process these files instead of walking `publicDir`. Non-raster paths are ignored. */
+  files?: string[];
+  /** Files to leave alone, on top of `raw/` capture directories. */
+  exclude?: (file: string) => boolean;
+  /** Files held to `budget` instead of the MAX_WIDTH cap. */
+  bounded?: { budget: BoundedBudget; includes: (file: string) => boolean };
+}
+
+type ManifestArg = string | OptimizeOptions | undefined;
+const asOptions = (arg: ManifestArg): OptimizeOptions => (typeof arg === "string" ? { manifestFile: arg } : (arg ?? {}));
+
+export function manifestPath(projectRoot: string, manifestFile = DEFAULT_MANIFEST): string {
+  return path.join(projectRoot, manifestFile);
+}
+
+export async function readManifest(projectRoot: string, manifestFile?: string): Promise<Record<string, string>> {
   try {
-    return JSON.parse(await fs.readFile(manifestPath(projectRoot), "utf8"));
+    return JSON.parse(await fs.readFile(manifestPath(projectRoot, manifestFile), "utf8"));
   } catch {
     return {};
   }
 }
 
-async function writeManifest(projectRoot: string, data: Record<string, string>): Promise<void> {
+async function writeManifest(projectRoot: string, data: Record<string, string>, manifestFile?: string): Promise<void> {
   const sorted = Object.fromEntries(Object.entries(data).sort(([a], [b]) => a.localeCompare(b)));
-  await fs.writeFile(manifestPath(projectRoot), JSON.stringify(sorted, null, 2) + "\n");
+  await fs.writeFile(manifestPath(projectRoot, manifestFile), JSON.stringify(sorted, null, 2) + "\n");
 }
 
 export async function hashFile(filePath: string): Promise<string> {
   const buf = await fs.readFile(filePath);
   return createHash("sha256").update(buf).digest("hex");
+}
+
+/** Largest size inside the budget with the same aspect ratio; never upscales. */
+export function boundedDimensions(
+  width: number,
+  height: number,
+  budget: BoundedBudget,
+  longEdge = budget.maxEdge,
+): { width: number; height: number } {
+  const scale = Math.min(1, longEdge / Math.max(width, height), Math.sqrt(budget.maxPixels / (width * height)));
+  return { width: Math.max(1, Math.floor(width * scale)), height: Math.max(1, Math.floor(height * scale)) };
+}
+
+/**
+ * Any `raw/` directory under `public/` holds untouched captures that compose scripts crop
+ * from — never referenced by a site, and the MAX_WIDTH resize silently breaks any hard-coded
+ * crop region against them (portfolio-2026, 2026-08-03: a 6000px source capped to 2500
+ * killed a compose script mid-run).
+ */
+function isRawCapture(file: string, publicDir: string): boolean {
+  const rel = path.relative(publicDir, path.dirname(file));
+  return !rel.startsWith("..") && !path.isAbsolute(rel) && rel.split(path.sep).includes("raw");
 }
 
 async function walk(dir: string): Promise<string[]> {
@@ -68,6 +138,14 @@ async function walk(dir: string): Promise<string[]> {
     else if (RASTER_EXT.has(path.extname(entry.name).toLowerCase())) files.push(full);
   }
   return files;
+}
+
+/** The files a run covers: the explicit list or the whole tree, minus raw captures and exclusions. */
+async function collect(projectRoot: string, publicDir: string, options: OptimizeOptions): Promise<string[]> {
+  const files = options.files
+    ? options.files.map((f) => path.resolve(projectRoot, f)).filter((f) => RASTER_EXT.has(path.extname(f).toLowerCase()))
+    : await walk(publicDir);
+  return files.filter((f) => !isRawCapture(f, publicDir) && !options.exclude?.(f));
 }
 
 async function getQueueCount(): Promise<number> {
@@ -127,7 +205,8 @@ async function runLosslessLinux(files: string[]): Promise<void> {
     for (const file of jpgs) {
       const tmp = `${file}.tmp`;
       try {
-        await execFileAsync("jpegtran", ["-copy", "none", "-optimize", "-progressive", "-outfile", tmp, file]);
+        // `-copy icc` keeps the colour profile and drops every other marker, matching stage 1.
+        await execFileAsync("jpegtran", ["-copy", "icc", "-optimize", "-progressive", "-outfile", tmp, file]);
         const [before, after] = await Promise.all([fs.stat(file), fs.stat(tmp)]);
         if (after.size < before.size) await fs.rename(tmp, file);
         else await fs.unlink(tmp);
@@ -179,6 +258,7 @@ async function runImageOptim(files: string[]): Promise<void> {
     await sleep(3_000);
   }
 
+  // queuecount can reach 0 while zopfli/advpng are still writing to disk.
   const helperStart = Date.now();
   while (Date.now() - helperStart < 60_000) {
     if (!(await imageOptimHelpersRunning())) break;
@@ -188,21 +268,31 @@ async function runImageOptim(files: string[]): Promise<void> {
   console.log(`ImageOptim pass done on ${targets.length} file(s)`);
 }
 
-async function optimizeImage(filePath: string): Promise<boolean> {
-  const image = sharp(filePath, { failOn: "none" });
-  const meta = await image.metadata();
+/** Stage 1 on one file. Returns whether the file was rewritten. */
+export async function optimizeImage(
+  filePath: string,
+  options: { budget?: BoundedBudget; projectRoot?: string } = {},
+): Promise<boolean> {
+  const meta = await sharp(filePath, { failOn: "none" }).metadata();
   const width = meta.width ?? 0;
-  const needsResize = width > MAX_WIDTH;
+  const height = meta.height ?? 0;
+  const { budget } = options;
+  // sharp resizes after .rotate(), so a bounded target is computed in the upright orientation.
+  const rotated = [5, 6, 7, 8].includes(meta.orientation ?? 1);
+  const boundedSize = budget ? boundedDimensions(rotated ? height : width, rotated ? width : height, budget) : null;
+  const needsResize = budget
+    ? Math.max(width, height) > budget.maxEdge || width * height > budget.maxPixels
+    : width > MAX_WIDTH;
 
   if (!needsResize && !meta.exif && !meta.iptc && !meta.xmp) return false;
 
   let pipeline = sharp(filePath).rotate().keepIccProfile();
-  if (needsResize) pipeline = pipeline.resize({ width: MAX_WIDTH, withoutEnlargement: true });
+  if (needsResize) pipeline = pipeline.resize(boundedSize ?? { width: MAX_WIDTH, withoutEnlargement: true });
 
   const ext = path.extname(filePath).toLowerCase();
   if (ext === ".png") pipeline = pipeline.png({ compressionLevel: 9, adaptiveFiltering: true });
   else if (ext === ".jpg" || ext === ".jpeg") pipeline = pipeline.jpeg({ quality: 100, mozjpeg: true });
-  else if (ext === ".webp") pipeline = pipeline.webp({ lossless: true });
+  else if (ext === ".webp") pipeline = pipeline.webp({ lossless: true, exact: true, effort: 6 });
   else if (ext === ".avif") pipeline = pipeline.avif({ lossless: true });
 
   const tmp = `${filePath}.tmp`;
@@ -216,8 +306,17 @@ async function optimizeImage(filePath: string): Promise<boolean> {
   }
 
   await fs.rename(tmp, filePath);
+
+  const rel = path.relative(options.projectRoot ?? process.cwd(), filePath);
+  if (needsResize) {
+    const target = boundedSize ? `${boundedSize.width}×${boundedSize.height} (bounded)` : `<=${MAX_WIDTH}px`;
+    console.log(`resized ${rel}: ${width}×${height} -> ${target}`);
+  } else console.log(`stripped metadata ${rel} (${oldSize} -> ${newSize})`);
   return true;
 }
+
+const budgetFor = (file: string, options: OptimizeOptions) =>
+  options.bounded?.includes(file) ? options.bounded.budget : undefined;
 
 export interface OptimizeResult {
   processed: number;
@@ -225,10 +324,18 @@ export interface OptimizeResult {
   manifestEntries: number;
 }
 
-/** Sharp + ImageOptim + manifest, gated so only content-changed files are touched. */
-export async function optimizeImages(projectRoot: string, publicDir: string): Promise<OptimizeResult> {
-  const files = await walk(publicDir);
-  const manifest = await readManifest(projectRoot);
+/**
+ * Sharp + lossless pass + manifest, gated so only content-changed files are touched.
+ * The third argument is a manifest filename (the original signature) or `OptimizeOptions`.
+ */
+export async function optimizeImages(
+  projectRoot: string,
+  publicDir: string,
+  manifestOrOptions?: ManifestArg,
+): Promise<OptimizeResult> {
+  const options = asOptions(manifestOrOptions);
+  const files = await collect(projectRoot, publicDir, options);
+  const manifest = await readManifest(projectRoot, options.manifestFile);
 
   const toProcess: string[] = [];
   let skipped = 0;
@@ -241,7 +348,7 @@ export async function optimizeImages(projectRoot: string, publicDir: string): Pr
 
   let processed = 0;
   for (const file of toProcess) {
-    if (await optimizeImage(file)) processed++;
+    if (await optimizeImage(file, { budget: budgetFor(file, options), projectRoot })) processed++;
   }
 
   if (toProcess.length > 0) await runImageOptim(toProcess);
@@ -254,29 +361,102 @@ export async function optimizeImages(projectRoot: string, publicDir: string): Pr
       /* file removed during processing */
     }
   }
-  await writeManifest(projectRoot, manifest);
+  await writeManifest(projectRoot, manifest, options.manifestFile);
 
   return { processed, skipped, manifestEntries: Object.keys(manifest).length };
 }
 
+export interface SharpGuardResult {
+  changed: number;
+  total: number;
+  /** Files whose hash is not in the manifest yet — stage 2 still owes them a pass. */
+  pending: number;
+}
+
+/**
+ * Stage 1 only, no manifest write — fast enough for a pre-commit hook. `pending` tells the
+ * caller how many files still need the full `optimizeImages` pass before deploy.
+ */
+export async function sharpGuard(projectRoot: string, publicDir: string, options: OptimizeOptions = {}): Promise<SharpGuardResult> {
+  const files = await collect(projectRoot, publicDir, options);
+  let changed = 0;
+  for (const file of files) {
+    if (await optimizeImage(file, { budget: budgetFor(file, options), projectRoot })) changed++;
+  }
+  const manifest = await readManifest(projectRoot, options.manifestFile);
+  let pending = 0;
+  for (const f of files) if (manifest[path.relative(projectRoot, f)] !== (await hashFile(f))) pending++;
+  return { changed, total: files.length, pending };
+}
+
+/**
+ * Every published bounded file must sit inside its budget, manifest match or not. Returns one
+ * message per violation; a missing file throws, because a published reference must resolve.
+ */
+export async function boundedBudgetViolations(publicDir: string, files: string[], budget: BoundedBudget): Promise<string[]> {
+  const problems: string[] = [];
+  for (const file of files) {
+    const label = "/" + path.relative(publicDir, file).split(path.sep).join("/");
+    const bytes = (await fs.stat(file)).size;
+    if (budget.maxBytes && bytes > budget.maxBytes) {
+      problems.push(`${label} is ${(bytes / 1e6).toFixed(1)} MB, over the ${budget.maxBytes / 1e6} MB budget; prepare a bounded derivative.`);
+    }
+    const meta = await sharp(file).metadata();
+    const w = meta.width ?? 0;
+    const h = meta.height ?? 0;
+    if (Math.max(w, h) > budget.maxEdge || w * h > budget.maxPixels) {
+      problems.push(`${label} is ${w}×${h}, over the ${budget.maxEdge}px / ${budget.maxPixels / 1e6}MP budget; optimize it before publishing.`);
+    }
+  }
+  return problems;
+}
+
+/** Records every current file as optimized without touching it — for a tree already clean. */
+export async function seedManifest(projectRoot: string, publicDir: string, manifestOrOptions?: ManifestArg): Promise<number> {
+  const options = asOptions(manifestOrOptions);
+  const manifest: Record<string, string> = {};
+  for (const f of await collect(projectRoot, publicDir, { ...options, files: undefined })) {
+    manifest[path.relative(projectRoot, f)] = await hashFile(f);
+  }
+  await writeManifest(projectRoot, manifest, options.manifestFile);
+  return Object.keys(manifest).length;
+}
+
 // CLI: npx tsx src/lib/qa/image-pipeline/optimize-images.ts [--project-root <path>] [--public-dir <path>]
+//      [--manifest <file>] [--seed-manifest | --sharp-only] [file ...]
+// With no files it walks the public dir. `--sharp-only` runs stage 1 without touching the manifest.
 if (process.argv[1]?.replace(/\\/g, "/").includes("qa/image-pipeline/optimize-images")) {
   const args = process.argv.slice(2);
+  const valueFlags = new Set(["--project-root", "--public-dir", "--manifest"]);
   const flag = (name: string, fallback: string) => {
     const i = args.indexOf(name);
     return i >= 0 ? args[i + 1] : fallback;
   };
+  const files = args.filter((a, i) => !a.startsWith("--") && !valueFlags.has(args[i - 1]));
   const projectRoot = path.resolve(flag("--project-root", process.cwd()));
   const publicDir = path.resolve(flag("--public-dir", path.join(projectRoot, "public")));
+  const options: OptimizeOptions = {
+    manifestFile: flag("--manifest", DEFAULT_MANIFEST),
+    ...(files.length ? { files } : {}),
+  };
 
-  optimizeImages(projectRoot, publicDir)
-    .then((result) => {
+  const run = async () => {
+    if (args.includes("--seed-manifest")) {
+      const n = await seedManifest(projectRoot, publicDir, options);
+      console.log(`optimize-images: seeded ${options.manifestFile} with ${n} file(s)`);
+    } else if (args.includes("--sharp-only")) {
+      const r = await sharpGuard(projectRoot, publicDir, options);
+      console.log(`optimize-images: sharp pass -- ${r.changed} of ${r.total} file(s) updated`);
+      if (r.pending) console.log(`${r.pending} image(s) not yet fully compressed -- run the full pass before deploying.`);
+    } else {
+      const r = await optimizeImages(projectRoot, publicDir, options);
       console.log(
-        `optimize-images: ${result.processed} processed, ${result.skipped} already optimized, manifest has ${result.manifestEntries} entries`,
+        `optimize-images: ${r.processed} processed, ${r.skipped} already optimized, manifest has ${r.manifestEntries} entries`,
       );
-    })
-    .catch((err: unknown) => {
-      console.error("optimize-images failed:", err instanceof Error ? err.message : err);
-      process.exit(1);
-    });
+    }
+  };
+  run().catch((err: unknown) => {
+    console.error("optimize-images failed:", err instanceof Error ? err.message : err);
+    process.exit(1);
+  });
 }

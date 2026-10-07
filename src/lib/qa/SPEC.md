@@ -18,7 +18,7 @@ Built 2026-09-05, plan `~/.claude/plans/aethr-product-build-spine.md` Phase 3.
 | `accessibility-checks.ts` | §4 | axe-core (every page) + Lighthouse (homepage only, see deviation) |
 | `asset-check.ts` | §7 | Raster-asset-in-`out/` vs optimization-manifest coverage |
 | `smoke.ts` | §2 | The 5-check post-push smoke suite against a deployed URL |
-| `image-pipeline/optimize-images.ts` | §6 | sharp + ImageOptim + SHA-256 manifest, ported from `portfolio-2026` |
+| `image-pipeline/optimize-images.ts` | §6 | sharp + ImageOptim + SHA-256 manifest; the one copy, also run by `tasteled` and `portfolio-2026` |
 | `image-pipeline/prewarm.ts` | §6.5 | Cloudflare-cache prewarm, rewritten (not ported) — see deviation |
 | `settle.ts` | — | Brings a page to its settled state (reveals fired, counters finished) before the content and layout stages measure or photograph it |
 | `static-server.ts` | §2 | Serves `output: "export"`'s `out/` the way Cloudflare Workers Static Assets does — `next start` refuses outright on this config |

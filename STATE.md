@@ -1,5 +1,5 @@
 ---
-updated: 2026-09-30
+updated: 2026-10-07
 status: active
 ---
 # AethrDesign Next.js base template + assembly system — state
@@ -13,6 +13,8 @@ _Keep only the newest entry here. When adding one, move the previous entry to th
 **Next:** run one real client staging with it; then wire tasteled (done: `pnpm security-headers` in its deploy) and the portal's `security-headers` goal metric.
 
 ## Open threads
+
+- **Shared image optimizer extended for portfolio-2026, 2026-10-07; committed, not pushed.** `src/lib/qa/image-pipeline/optimize-images.ts` is now the one copy portfolio-2026 also runs: bounded budgets, `sharpGuard`, explicit files, exclude. The Linux `jpegtran` pass now uses `-copy icc`. It was `-copy none`, which dropped the JPEG ICC profile. Next: push when Chevis approves.
 
 - **Turnstile is now enabled in pairs, and the pairing is the whole rule.**
   `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is a BUILD input inlined into the static export;
