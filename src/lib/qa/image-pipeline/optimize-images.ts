@@ -223,10 +223,16 @@ async function runLosslessLinux(files: string[]): Promise<void> {
   }
 }
 
-async function runImageOptim(files: string[]): Promise<void> {
+/**
+ * Returns whether the files are settled on disk. A run that is not settled must not record
+ * hashes: ImageOptim keeps rewriting files after we stop watching, and a hash taken mid-pass
+ * goes stale the moment it lands (aethrdesign-web, 2026-10-07: a fixed 20-minute cap recorded
+ * 300 files while ImageOptim still had 20 queued, so 11 entries were wrong on the next check).
+ */
+async function runImageOptim(files: string[]): Promise<boolean> {
   if (process.platform !== "darwin") {
     await runLosslessLinux(files);
-    return;
+    return true;
   }
   const targets: string[] = [];
   for (const f of files) {
@@ -238,37 +244,56 @@ async function runImageOptim(files: string[]): Promise<void> {
       /* file gone */
     }
   }
-  if (targets.length === 0) return;
+  if (targets.length === 0) return true;
 
   try {
     await execFileAsync("open", ["-a", "ImageOptim", ...targets]);
   } catch (err) {
     console.warn(`ImageOptim pass skipped -- could not launch app: ${(err as Error).message}`);
-    return;
+    return true;
   }
 
-  const timeoutMs = Math.min(Math.max(targets.length * 20_000, 60_000), 20 * 60_000);
-  const start = Date.now();
-  while (Date.now() - start < timeoutMs) {
+  // No fixed cap: a big batch of zopfli passes legitimately runs for an hour. Wait while the
+  // queue moves or a helper is working; give up only when both have been idle for STALL_MS.
+  const STALL_MS = 3 * 60_000;
+  let settled = false;
+  let lastCount = -1;
+  let lastProgress = Date.now();
+  for (;;) {
     let count: number;
     try {
       count = await getQueueCount();
     } catch {
-      console.warn("ImageOptim pass: lost contact with app, waiting for helper processes");
+      console.warn("ImageOptim pass: lost contact with app");
       break;
     }
-    if (count === 0) break;
+    if (count === 0) {
+      settled = true;
+      break;
+    }
+    if (count !== lastCount || (await imageOptimHelpersRunning())) {
+      lastCount = count;
+      lastProgress = Date.now();
+    } else if (Date.now() - lastProgress > STALL_MS) {
+      console.warn(`ImageOptim pass: queue stuck at ${count} with no helper running`);
+      break;
+    }
     await sleep(3_000);
   }
 
   // queuecount can reach 0 while zopfli/advpng are still writing to disk.
   const helperStart = Date.now();
-  while (Date.now() - helperStart < 60_000) {
-    if (!(await imageOptimHelpersRunning())) break;
+  while (await imageOptimHelpersRunning()) {
+    if (Date.now() - helperStart > 5 * 60_000) {
+      settled = false;
+      break;
+    }
     await sleep(3_000);
   }
 
-  console.log(`ImageOptim pass done on ${targets.length} file(s)`);
+  if (settled) console.log(`ImageOptim pass done on ${targets.length} file(s)`);
+  else console.warn(`ImageOptim pass did not settle on ${targets.length} file(s); not recording them -- run again`);
+  return settled;
 }
 
 /** Stage 1 on one file. Returns whether the file was rewritten. */
@@ -330,6 +355,8 @@ export interface OptimizeResult {
   processed: number;
   skipped: number;
   manifestEntries: number;
+  /** False when the lossless pass did not finish; its files were left out of the manifest. */
+  settled: boolean;
 }
 
 /**
@@ -359,9 +386,10 @@ export async function optimizeImages(
     if (await optimizeImage(file, { budget: budgetFor(file, options), projectRoot })) processed++;
   }
 
-  if (toProcess.length > 0) await runImageOptim(toProcess);
+  const settled = toProcess.length > 0 ? await runImageOptim(toProcess) : true;
 
-  for (const f of toProcess) {
+  // Unsettled files stay out of the manifest, so the next run picks them up again.
+  for (const f of settled ? toProcess : []) {
     const rel = path.relative(projectRoot, f);
     try {
       manifest[rel] = await hashFile(f);
@@ -371,7 +399,7 @@ export async function optimizeImages(
   }
   await writeManifest(projectRoot, manifest, options.manifestFile);
 
-  return { processed, skipped, manifestEntries: Object.keys(manifest).length };
+  return { processed, skipped, manifestEntries: Object.keys(manifest).length, settled };
 }
 
 export interface SharpGuardResult {
@@ -461,6 +489,8 @@ if (process.argv[1]?.replace(/\\/g, "/").includes("qa/image-pipeline/optimize-im
       console.log(
         `optimize-images: ${r.processed} processed, ${r.skipped} already optimized, manifest has ${r.manifestEntries} entries`,
       );
+      // Non-zero so a chained step (e.g. a hash re-record) does not run on files still being written.
+      if (!r.settled) process.exitCode = 1;
     }
   };
   run().catch((err: unknown) => {
