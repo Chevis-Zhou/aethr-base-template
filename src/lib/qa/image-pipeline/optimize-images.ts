@@ -254,7 +254,9 @@ async function runImageOptim(files: string[]): Promise<boolean> {
   }
 
   // No fixed cap: a big batch of zopfli passes legitimately runs for an hour. Wait while the
-  // queue moves or a helper is working; give up only when both have been idle for STALL_MS.
+  // queue moves or a helper is working. ImageOptim can keep rows it never clears (seen: 20
+  // left with nothing running), so a queue idle for STALL_MS with no helper counts as done:
+  // nothing is writing, which is all the manifest needs.
   const STALL_MS = 3 * 60_000;
   let settled = false;
   let lastCount = -1;
@@ -275,7 +277,8 @@ async function runImageOptim(files: string[]): Promise<boolean> {
       lastCount = count;
       lastProgress = Date.now();
     } else if (Date.now() - lastProgress > STALL_MS) {
-      console.warn(`ImageOptim pass: queue stuck at ${count} with no helper running`);
+      console.warn(`ImageOptim pass: ${count} row(s) left in the queue with nothing running; treating as done`);
+      settled = true;
       break;
     }
     await sleep(3_000);
@@ -290,6 +293,11 @@ async function runImageOptim(files: string[]): Promise<boolean> {
     }
     await sleep(3_000);
   }
+
+  // Quit so the app does not keep its rows: handing files to an app that still holds an old
+  // list re-runs the whole list (aethrdesign-web 2026-10-07: 3 new files queued ~1,400 steps
+  // and a second pass started after this one had returned).
+  if (settled) await execFileAsync("osascript", ["-e", 'tell application "ImageOptim" to quit']).catch(() => {});
 
   if (settled) console.log(`ImageOptim pass done on ${targets.length} file(s)`);
   else console.warn(`ImageOptim pass did not settle on ${targets.length} file(s); not recording them -- run again`);
