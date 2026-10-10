@@ -23,6 +23,11 @@ name: Publish a client site
 on:
   workflow_dispatch:
     inputs:
+      cloud_facts_only:
+        description: Synthetic Phase 4 probe only — inspect pinned source without building or uploading
+        required: false
+        default: false
+        type: boolean
       slug:
         description: Client slug (also the Worker name, site-<slug>)
         required: true
@@ -54,7 +59,49 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  source-facts:
+    if: inputs.cloud_facts_only
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 10
+    steps:
+      - name: Refuse a non-synthetic facts request
+        env:
+          SLUG: ${{ inputs.slug }}
+          STAGE: ${{ inputs.stage }}
+          PUBLISH_ID: ${{ inputs.publish_id }}
+          JOB_ID: ${{ inputs.job_id }}
+        run: |
+          set -euo pipefail
+          test "$SLUG" = cms-phase4-synthetic
+          test "$STAGE" = staging
+          test "$PUBLISH_ID" = source-facts
+          test "$JOB_ID" = source-facts
+      - uses: actions/checkout@v4
+        with:
+          ref: 74d279f900498ccb4c8057c4374ae56f953cead9
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Record exact clean-source build facts
+        run: |
+          set -euo pipefail
+          pnpm exec tsx --eval 'import {inspectCmsCheckout} from "./scripts/lib/cms-publish.ts"; import {createHash} from "node:crypto"; import fs from "node:fs"; import path from "node:path"; const f=inspectCmsCheckout(process.cwd()); if(f.dirty || f.commit!=="74d279f900498ccb4c8057c4374ae56f953cead9")throw new Error("Pinned source is dirty or incorrect"); const sha=(v)=>"sha256:"+createHash("sha256").update(v).digest("hex"); const out={commit:f.commit,tree:f.tree,renderer:sha(f.tree),lockfile:sha(f.lockfile),toolchain:f.toolchain,platform:process.platform,arch:process.arch}; fs.writeFileSync(path.join(process.env.RUNNER_TEMP,"cms-source-facts.json"),JSON.stringify(out,null,2)); console.log(JSON.stringify(out,null,2));'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cms-source-facts
+          path: ${{ runner.temp }}/cms-source-facts.json
+          if-no-files-found: error
+          retention-days: 3
   publish:
+    if: ${{ !inputs.cloud_facts_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
