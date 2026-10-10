@@ -99,8 +99,10 @@ export function isolatedCmsBuild(prepared:PreparedCmsPublish):string {
     const require = createRequire(path.join(target,"package.json"));
     const installed = JSON.parse(fs.readFileSync(require.resolve("next/package.json"),"utf8")) as {version:string};
     if (!facts.toolchain.includes(`;next:${installed.version};`)) throw new Error("Isolated CMS dependency toolchain differs from its pin");
-    const sharpPackage = JSON.parse(fs.readFileSync(require.resolve("sharp/package.json"),"utf8")) as {version:string};
-    if (sharpPackage.version !== sharp.versions.sharp) throw new Error("Isolated CMS raster toolchain differs from its pin");
+    // Sharp does not export package.json; verify the installed runtime directly.
+    const isolatedSharp = require("sharp") as {versions:{sharp:string;vips:string}};
+    if (isolatedSharp.versions.sharp !== sharp.versions.sharp || isolatedSharp.versions.vips !== sharp.versions.vips)
+      throw new Error("Isolated CMS raster toolchain differs from its pin");
     return target;
   } catch (error) {fs.rmSync(target,{recursive:true,force:true});throw error;}
 }
