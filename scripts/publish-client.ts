@@ -289,7 +289,7 @@ async function main(): Promise<void> {
     // §3's first reason for one shared builder is that the two paths cannot diverge.
     execFileSync("npx", ["next", "build"], { cwd: projectRoot, stdio: "inherit",...(cms ? {env:cmsBuildEnvironment(cms.buildEnv)} : {}) });
     if (derived) writeCmsAssetManifest(path.join(projectRoot,"out"),derived.manifest);
-    writeHeadersFile(path.join(projectRoot,"out"), cms ? {previewFrames:[{route:"/cms-preview",editorOrigin:cms.input.editorOrigin}]} : {});
+    writeHeadersFile(path.join(projectRoot,"out"), cms ? {preserveHtml:true,previewFrames:[{route:"/cms-preview",editorOrigin:cms.input.editorOrigin}]} : {});
 
     console.log("  fast gate…");
     const gate = await runFastGate({ spec: payload.spec, projectRoot,cmsPages:assembled.cmsPages });

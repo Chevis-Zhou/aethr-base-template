@@ -44,6 +44,8 @@ const CF_ANALYTICS_SCRIPT = "https://static.cloudflareinsights.com";
 const CF_ANALYTICS_BEACON = "https://cloudflareinsights.com";
 
 export interface SecurityHeadersOptions {
+  /** Preserve source-pinned HTML against edge rewriting; asset caching remains unchanged. */
+  preserveHtml?: boolean;
   /** Origins the site's own JS `fetch`es or a form posts to (e.g. the portal API). */
   connectOrigins?: string[];
   /** Origins allowed as embedded frames, beyond anything detected. */
@@ -241,6 +243,9 @@ export function generateHeadersFile(outDir: string, options: SecurityHeadersOpti
     : scanHtml("");
 
   const cspLine = (assets: PageAssets, editorOrigin?: string) => `  Content-Security-Policy: ${policyFor(assets, editorOrigin)}`;
+  // Keep wildcard 404 fallbacks cache-neutral: they also match static assets. Unknown
+  // routes therefore retain their existing cache policy; only exported HTML opts in.
+  const htmlCache = options.preserveHtml ? ["  Cache-Control: public, max-age=0, must-revalidate, no-transform"] : [];
   const blocks: string[] = [
     ["/*", ...STATIC_HEADERS.map(([k, v]) => `  ${k}: ${v}`)].join("\n"),
     ["/:seg", cspLine(fallback)].join("\n"),
@@ -248,12 +253,12 @@ export function generateHeadersFile(outDir: string, options: SecurityHeadersOpti
   ];
 
   for (const file of htmlFiles) {
-    if (file === "404.html" || file === "_not-found.html") continue;
+    if ((file === "404.html" || file === "_not-found.html") && !options.preserveHtml) continue;
     const route = routeFor(file);
     const assets = scanHtml(fs.readFileSync(path.join(resolved, file), "utf-8"));
     const detach = route === "/" ? [] : ["  ! Content-Security-Policy"];
     const editorOrigin = previewFrames.get(route);
-    blocks.push([route, ...detach, ...(editorOrigin ? ["  ! X-Frame-Options"] : []), cspLine(assets, editorOrigin)].join("\n"));
+    blocks.push([route, ...detach, ...(editorOrigin ? ["  ! X-Frame-Options"] : []), cspLine(assets, editorOrigin), ...htmlCache].join("\n"));
   }
 
   if (blocks.length > HEADERS_RULE_LIMIT) {
