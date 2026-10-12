@@ -80,7 +80,7 @@ jobs:
           test "$JOB_ID" = source-facts
       - uses: actions/checkout@v4
         with:
-          ref: 97825208b6e16de6eb8361acddfb2577c1217259
+          ref: 10722b6ab1ccd6d984fbdb98461d9d95bf646644
           persist-credentials: false
       - uses: pnpm/action-setup@v4
         with:
@@ -94,7 +94,7 @@ jobs:
       - name: Record exact clean-source build facts
         run: |
           set -euo pipefail
-          pnpm exec tsx --eval 'import {inspectCmsCheckout} from "./scripts/lib/cms-publish.ts"; import {createHash} from "node:crypto"; import fs from "node:fs"; import path from "node:path"; const f=inspectCmsCheckout(process.cwd()); if(f.dirty || f.commit!=="97825208b6e16de6eb8361acddfb2577c1217259")throw new Error("Pinned source is dirty or incorrect"); const sha=(v)=>"sha256:"+createHash("sha256").update(v).digest("hex"); const out={commit:f.commit,tree:f.tree,renderer:sha(f.tree),lockfile:sha(f.lockfile),toolchain:f.toolchain,platform:process.platform,arch:process.arch}; fs.writeFileSync(path.join(process.env.RUNNER_TEMP,"cms-source-facts.json"),JSON.stringify(out,null,2)); console.log(JSON.stringify(out,null,2));'
+          pnpm exec tsx --eval 'import {inspectCmsCheckout} from "./scripts/lib/cms-publish.ts"; import {createHash} from "node:crypto"; import fs from "node:fs"; import path from "node:path"; const f=inspectCmsCheckout(process.cwd()); if(f.dirty || f.commit!=="10722b6ab1ccd6d984fbdb98461d9d95bf646644")throw new Error("Pinned source is dirty or incorrect"); const sha=(v)=>"sha256:"+createHash("sha256").update(v).digest("hex"); const out={commit:f.commit,tree:f.tree,renderer:sha(f.tree),lockfile:sha(f.lockfile),toolchain:f.toolchain,platform:process.platform,arch:process.arch}; fs.writeFileSync(path.join(process.env.RUNNER_TEMP,"cms-source-facts.json"),JSON.stringify(out,null,2)); console.log(JSON.stringify(out,null,2));'
       - uses: actions/upload-artifact@v4
         with:
           name: cms-source-facts
