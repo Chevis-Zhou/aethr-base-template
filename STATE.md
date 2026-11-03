@@ -14,6 +14,8 @@ _Keep only the newest entry here. When adding one, move the previous entry to th
 
 ## Open threads
 
+- **Site comments are automatic on staging (2026-11-03, branch `feat/staging-site-comments`, not published).** `src/lib/deploy/site-comments.ts` adds the portal overlay tag to staging `out/` and strips it for production; `security-headers.ts` takes `siteCommentsOrigin` (connect-src only). Mac staging records the manifest of the production form first; `deploy` strips, rewrites `_headers` and compares. `publish-client.ts` reads `portalHost` from the portal's build payload (portal change: `portalHostOf`). Staging registration: Mac path fills `Staging URL:` in `state.md`; the cloud runner only prints the step. Overlay contract: portal ADR 0016.
+
 - **Shared image optimizer extended for portfolio-2026, 2026-10-07; committed, not pushed.** `src/lib/qa/image-pipeline/optimize-images.ts` is now the one copy portfolio-2026 also runs: bounded budgets, `sharpGuard`, explicit files, exclude. The Linux `jpegtran` pass now uses `-copy icc`. It was `-copy none`, which dropped the JPEG ICC profile. Next: push when Chevis approves.
 
 - **Turnstile is now enabled in pairs, and the pairing is the whole rule.**

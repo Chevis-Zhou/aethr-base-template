@@ -15,6 +15,14 @@ import {
 } from "./wrangler-config";
 import { writeHeadersFile } from "./security-headers";
 import {
+  applyStagingSiteComments,
+  assertNoSiteComments,
+  isPortalHost,
+  readPortalHost,
+  registerStagingLink,
+  stripSiteComments,
+} from "./site-comments";
+import {
   computeManifest,
   diffManifest,
   formatDrift,
@@ -108,8 +116,10 @@ export async function assertRoutesAttached(
   );
 }
 
+const DEFAULT_VAULT_ROOT = "/Volumes/External SSD/Vault";
+
 function manifestPath(slug: string, vaultRoot?: string): string {
-  const root = vaultRoot ?? "/Volumes/External SSD/Vault";
+  const root = vaultRoot ?? DEFAULT_VAULT_ROOT;
   return path.join(root, "Business/clients", slug, "approved-artifact.json");
 }
 
@@ -176,6 +186,11 @@ export interface StageOptions {
   dryRun?: boolean;
   /** Skip `next build` and stage whatever is already in `out/`. */
   skipBuild?: boolean;
+  /**
+   * The portal host this client was sold on, which serves the site-comments overlay.
+   * Defaults to `portal-host:` in the client's `state.md`.
+   */
+  portalHost?: string;
 }
 
 export async function staging(opts: StageOptions): Promise<ArtifactManifest> {
@@ -194,7 +209,10 @@ export async function staging(opts: StageOptions): Promise<ArtifactManifest> {
   }
 
   // Before the manifest, so the pinned artifact includes the headers DEPLOY will re-upload.
+  // The manifest describes the PRODUCTION form of out/: a re-stage over an out/ that still
+  // carries a previous staging overlay strips it first.
   if (!dryRun) {
+    stripSiteComments(outDir);
     const target = writeHeadersFile(outDir);
     console.log(`  wrote ${path.relative(PROJECT_ROOT, target)}`);
   }
@@ -210,6 +228,23 @@ export async function staging(opts: StageOptions): Promise<ArtifactManifest> {
     const manifestDir = path.dirname(manifestPath(slug, vaultRoot));
     fs.mkdirSync(manifestDir, { recursive: true });
     fs.writeFileSync(manifestPath(slug, vaultRoot), JSON.stringify(manifest, null, 2) + "\n", "utf-8");
+  }
+
+  // Staging only, after the manifest: DEPLOY strips this again and compares against the
+  // production-form manifest above, so production never ships the overlay or its CSP grant.
+  const portalHost = opts.portalHost ?? readPortalHost(slug, vaultRoot ?? DEFAULT_VAULT_ROOT);
+  if (isPortalHost(portalHost)) {
+    if (dryRun) {
+      console.log(`  [dry-run] would add the site-comments tag (${portalHost}) and its connect-src grant`);
+    } else {
+      const applied = applyStagingSiteComments(outDir, { slug, portalHost });
+      console.log(`  site comments: tag on ${applied.pages} page(s), connect-src ${applied.origin}`);
+    }
+  } else {
+    console.warn(
+      `  WARNING — no site comments: portal host is ${portalHost ? `"${portalHost}", not a known host` : "unknown"}. ` +
+        `Pass --portal-host or set portal-host: in state.md, then re-stage.`,
+    );
   }
 
   const extraHostnames = hostnamesToPreserve(slug, await attachedHostnames(slug, dryRun));
@@ -232,6 +267,17 @@ export async function staging(opts: StageOptions): Promise<ArtifactManifest> {
   await assertRoutesAttached(slug, routesFor(target), dryRun);
 
   console.log(`  staged. Send the client https://${previewHostname(slug)} for APPROVE.`);
+  if (!dryRun && isPortalHost(portalHost)) {
+    const link = `https://${previewHostname(slug)}`;
+    const registered = registerStagingLink(slug, link, vaultRoot ?? DEFAULT_VAULT_ROOT);
+    console.log(
+      registered === "written" || registered === "unchanged"
+        ? `  state.md Staging URL ${registered === "written" ? "set to" : "already"} ${link}. ` +
+            "The portal shows \"Open your site to comment\" after its next deploy."
+        : `  NEXT — register ${link} for site comments: state.md Staging URL (${registered}), ` +
+            "or aethr-portal src/lib/site-comments/origins.ts, then deploy the portal.",
+    );
+  }
   console.log(`  Paste into state.md: approve-entered: ${new Date().toISOString()}`);
   return manifest;
 }
@@ -269,6 +315,13 @@ export async function deploy(opts: DeployOptions): Promise<void> {
   }
 
   const approved = JSON.parse(fs.readFileSync(approvedPath, "utf-8")) as ArtifactManifest;
+  // out/ is still the staged upload: take the staging-only overlay back out and rewrite
+  // `_headers` (same options as STAGING) so the comparison is against the production form.
+  if (stripSiteComments(outDir) > 0) {
+    writeHeadersFile(outDir);
+    console.log("  removed the staging site-comments overlay and its CSP grant.");
+  }
+  assertNoSiteComments(outDir);
   const current = computeManifest(outDir, slug);
   const drift = diffManifest(approved, current);
 
@@ -342,7 +395,7 @@ function required(flags: Record<string, string | true>, name: string): string {
 }
 
 const USAGE = `Usage:
-  npx tsx src/lib/deploy/deploy.ts staging  --slug <slug> --contact-email <addr> [--vault-root <path>] [--skip-build] [--dry-run]
+  npx tsx src/lib/deploy/deploy.ts staging  --slug <slug> --contact-email <addr> [--portal-host <host>] [--vault-root <path>] [--skip-build] [--dry-run]
   npx tsx src/lib/deploy/deploy.ts deploy   --slug <slug> --contact-email <addr> --domain <apex> [--vault-root <path>] [--force] [--dry-run]
   npx tsx src/lib/deploy/deploy.ts rollback --slug <slug> [--dry-run]
 
@@ -351,6 +404,8 @@ A re-stage of a client past DEPLOY keeps any production Custom Domains already a
 DEPLOY verifies the artifact still matches what was approved, then attaches the client's
 apex and www to the same deployment and re-reads /workers/domains to confirm they stuck.
 It does not rebuild.
+STAGING also installs the portal's site-comments overlay (host from --portal-host or state.md
+\`portal-host:\`); DEPLOY removes it again, so production never carries it.
 --vault-root defaults to /Volumes/External SSD/Vault if omitted.
 `;
 
@@ -367,6 +422,7 @@ async function main(): Promise<void> {
           domain: typeof flags.domain === "string" ? flags.domain : undefined,
           vaultRoot: typeof flags["vault-root"] === "string" ? flags["vault-root"] : undefined,
           skipBuild: flags["skip-build"] === true,
+          portalHost: typeof flags["portal-host"] === "string" ? flags["portal-host"] : undefined,
           dryRun,
         });
         break;

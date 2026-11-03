@@ -20,7 +20,8 @@ import { listWorkerDomains } from "../src/lib/deploy/cloudflare-api";
 import { assertRoutesAttached } from "../src/lib/deploy/deploy";
 import { packArtifact } from "../src/lib/deploy/artifact-pack";
 import type { CheckFinding } from "../src/lib/qa/types";
-import { writeHeadersFile } from "../src/lib/deploy/security-headers";
+import { writeHeadersFile, type SecurityHeadersOptions } from "../src/lib/deploy/security-headers";
+import { applyStagingSiteComments, assertNoSiteComments, isPortalHost } from "../src/lib/deploy/site-comments";
 import { cmsBuildEnvironment, deriveCmsBuildAssets, fetchCmsBuildAssets, isolatedCmsBuild, prepareCmsPublish, verifyCmsAssetBytes, writeCmsAssetManifest, type PreparedCmsPublish } from "./lib/cms-publish";
 
 /**
@@ -72,6 +73,8 @@ const buildPayload = z.object({
   jobId: z.string().optional(),
   slug: z.string().optional(),
   stage: z.enum(["staging","production"]).optional(),
+  /** The host this client was sold on; it serves the staging-only site-comments overlay. */
+  portalHost: z.string().optional(),
   vector: z.unknown().optional(),
   cms: z.unknown().optional(),
   /** Client uploads living in R2, fetched into `public/` before the build. */
@@ -289,7 +292,8 @@ async function main(): Promise<void> {
     // §3's first reason for one shared builder is that the two paths cannot diverge.
     execFileSync("npx", ["next", "build"], { cwd: projectRoot, stdio: "inherit",...(cms ? {env:cmsBuildEnvironment(cms.buildEnv)} : {}) });
     if (derived) writeCmsAssetManifest(path.join(projectRoot,"out"),derived.manifest);
-    writeHeadersFile(path.join(projectRoot,"out"), cms ? {preserveHtml:true,previewFrames:[{route:"/cms-preview",editorOrigin:cms.input.editorOrigin}]} : {});
+    const headerOptions: SecurityHeadersOptions = cms ? {preserveHtml:true,previewFrames:[{route:"/cms-preview",editorOrigin:cms.input.editorOrigin}]} : {};
+    writeHeadersFile(path.join(projectRoot,"out"), headerOptions);
 
     console.log("  fast gate…");
     const gate = await runFastGate({ spec: payload.spec, projectRoot,cmsPages:assembled.cmsPages });
@@ -301,6 +305,24 @@ async function main(): Promise<void> {
       return;
     }
     console.log("  gate passed.");
+
+    // After the gate, so the gate judges the production form. Staging gets the comments
+    // overlay and its connect-src grant; a production build must carry neither.
+    const out = path.join(projectRoot, "out");
+    if (args.stage === "staging") {
+      if (isPortalHost(payload.portalHost)) {
+        const applied = applyStagingSiteComments(out, { slug: args.slug, portalHost: payload.portalHost }, headerOptions);
+        console.log(`  site comments: tag on ${applied.pages} page(s), connect-src ${applied.origin}`);
+        console.log(
+          `  NEXT — register https://${previewHostname(args.slug)} as the staging origin (state.md Staging URL, ` +
+            "or aethr-portal src/lib/site-comments/origins.ts) and deploy the portal; the client dashboard then shows \"Open your site to comment\".",
+        );
+      } else {
+        console.warn(`  WARNING — no site comments: the portal named no known host (${payload.portalHost ?? "none"}).`);
+      }
+    } else {
+      assertNoSiteComments(out);
+    }
 
     if (args.jobId) {
       await uploadArtifact(args, payload.attempt!,projectRoot,cms?.sourceCommit);
