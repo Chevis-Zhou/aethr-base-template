@@ -217,6 +217,10 @@ const STATIC_HEADERS: Array<[string, string]> = [
   ["Cross-Origin-Opener-Policy", "same-origin"],
 ];
 
+/** Export paths whose filenames carry a content hash (Next build chunks, externalized inline assets). */
+export const IMMUTABLE_PREFIXES = ["/_next/static/", "/_inline/"];
+export const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
+
 /** The public URL each HTML file answers on, under Cloudflare's `auto-trailing-slash`. */
 export function routeFor(htmlFile: string): string {
   if (htmlFile === "index.html") return "/";
@@ -269,6 +273,8 @@ export function generateHeadersFile(outDir: string, options: SecurityHeadersOpti
   const htmlCache = options.preserveHtml ? ["  Cache-Control: public, max-age=0, must-revalidate, no-transform"] : [];
   const blocks: string[] = [
     ["/*", ...STATIC_HEADERS.map(([k, v]) => `  ${k}: ${v}`)].join("\n"),
+    // Content-hashed filenames never change in place, so browsers can skip revalidation.
+    ...IMMUTABLE_PREFIXES.map((prefix) => [`${prefix}*`, `  Cache-Control: ${IMMUTABLE_CACHE}`].join("\n")),
     ["/:seg", cspLine(fallback)].join("\n"),
     ["/:seg/*", cspLine(fallback)].join("\n"),
   ];

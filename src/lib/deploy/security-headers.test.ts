@@ -109,7 +109,7 @@ describe("generateHeadersFile", () => {
     const options = {previewFrames:[{route:"/cms-preview",editorOrigin:"https://portal.example"}]};
     const normal = generateHeadersFile(dir, options);
     assert.equal(normal, generateHeadersFile(dir,{...options,preserveHtml:false}));
-    assert.ok(!normal.includes("Cache-Control"));
+    assert.ok(normal.split("\n\n").every(rule=>!rule.includes("Cache-Control")||rule.includes("immutable")));
     const preserved = generateHeadersFile(dir,{...options,preserveHtml:true});
     const rules = (text:string) => Object.fromEntries(text.trim().split("\n\n").map(block=>[block.split("\n")[0],block.split("\n").slice(1)]));
     const before=rules(normal),after=rules(preserved);
@@ -138,7 +138,7 @@ describe("generateHeadersFile", () => {
     for(let n=0;n<HEADERS_RULE_LIMIT;n++)files[`assets/${n}.js`]="asset";
     const dir=site(files);
     assert.doesNotThrow(()=>generateHeadersFile(dir));
-    assert.equal(generateHeadersFile(dir,{preserveHtml:true}).trim().split("\n\n").length,5);
+    assert.equal(generateHeadersFile(dir,{preserveHtml:true}).trim().split("\n\n").length,7);
   });
 
   it("allows only the recorded editor to frame the exact preview shell", () => {
@@ -181,7 +181,8 @@ describe("generateHeadersFile", () => {
     });
     const rules = generateHeadersFile(dir).trim().split("\n\n");
     const byPath = Object.fromEntries(rules.map((r) => [r.split("\n")[0], r]));
-    assert.deepEqual(Object.keys(byPath), ["/*", "/:seg", "/:seg/*", "/about", "/"]);
+    assert.deepEqual(Object.keys(byPath), ["/*", "/_next/static/*", "/_inline/*", "/:seg", "/:seg/*", "/about", "/"]);
+    assert.match(byPath["/_next/static/*"], /Cache-Control: public, max-age=31536000, immutable/);
     assert.match(byPath["/*"], /Strict-Transport-Security: max-age=\d{8,}/);
     assert.match(byPath["/*"], /X-Content-Type-Options: nosniff/);
     assert.ok(!byPath["/*"].includes("Content-Security-Policy"), "catch-all carries no CSP");

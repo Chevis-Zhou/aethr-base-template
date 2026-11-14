@@ -22,7 +22,7 @@ test("a large catalogue retains ordered bootstraps with a bounded strict CSP", (
     const scripts = [...html.matchAll(/<script src="([^"]+)"/g)].map(m => fs.readFileSync(path.join(root, m[1]), "utf8"));
     assert.deepEqual(scripts, ["first(0)", "second(0)"]);
     const headers = generateHeadersFile(root, { groups: [{ prefix: "/template/", frameOrigins: ["'self'"] }] });
-    assert.equal(headers.trim().split("\n\n").length, 5);
+    assert.equal(headers.trim().split("\n\n").length, 7);
     assert.match(headers, /\/template\/\*/);
     assert.doesNotMatch(headers.match(/script-src [^;]+/)![0], /unsafe-inline/);
     assert.match(headers, /frame-src 'self'/);
